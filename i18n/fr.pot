@@ -1,0 +1,106 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"POT-Creation-Date: 2025-10-29T14:20:18.452Z\n"
+"PO-Revision-Date: 2025-10-29T14:20:18.453Z\n"
+
+msgid "You need to select students first"
+msgstr "Vous devez d'abord sélectionner les étudiants"
+
+msgid "Assing attendace"
+msgstr "Attribuer la présence"
+
+msgid "Disable multi attendance mode"
+msgstr "Désactiver le mode de présence multiple"
+
+msgid ""
+"It will assign the same attendance status to all visible students in the "
+"table"
+msgstr ""
+"Cela attribuera le même statut de présence à tous les étudiants visibles "
+"dans le tableau"
+
+msgid "Mark all as present"
+msgstr "Marquer tous comme présents"
+
+msgid "Warning"
+msgstr "Avertissement"
+
+msgid "Students will be affected"
+msgstr "Les étudiants seront affectés"
+
+msgid "The chosen attendance status will be assigned to the selected students"
+msgstr "Le statut de présence choisi sera attribué aux étudiants sélectionnés"
+
+msgid "Attendance"
+msgstr "Présence"
+
+msgid "Bulk attendance"
+msgstr "Présences en masse"
+
+msgid "Unknown error"
+msgstr "Erreur inconnue"
+
+msgid "Please select an organisation unit before"
+msgstr "Veuillez d'abord sélectionner une unité d'organisation"
+
+msgid "Take attendance"
+msgstr "Prendre la présence"
+
+msgid "View attendance records"
+msgstr "Voir les registres de présence"
+
+msgid "Please select all filters"
+msgstr "Veuillez sélectionner tous les filtres"
+
+msgid "All listed students will be affected"
+msgstr "Tous les étudiants répertoriés seront affectés"
+
+msgid "The present attendance status will be assigned to all students"
+msgstr "Le statut de présence actuel sera attribué à tous les étudiants"
+
+msgid "Are you sure you want to mark all as present?"
+msgstr "Êtes-vous sûr de vouloir marquer tous comme présents ?"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Yes im sure"
+msgstr "Oui, je suis sûr"
+
+msgid "Attendance title"
+msgstr "Titre de la présence"
+
+msgid "Selected date"
+msgstr "Date sélectionnée"
+
+msgid "Hide reason of absense"
+msgstr "Masquer la raison de l'absence"
+
+msgid "View teason of absense"
+msgstr "Voir la raison de l'absence"
+
+msgid "Export {{section}} attendances"
+msgstr "Exporter les présences de {{section}}"
+
+msgid "Import {{section}} attendances"
+msgstr "Importer les présences de {{section}}"
+
+msgid "student"
+msgstr "étudiant"
+
+msgid "staff"
+msgstr "personnel"
+
+msgid "Select the Organization unit you want to view data"
+msgstr "Sélectionnez l’unité d’organisation dont vous souhaitez afficher les données"
+
+msgid "Use global filters(Class, Grade and Academic Year)"
+msgstr "Utilisez les filtres globaux (Classe, Niveau et Année académique)"
+
+msgid "Follow the instructions to proceed"
+msgstr "Suivez les instructions pour continuer"

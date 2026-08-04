@@ -1,0 +1,87 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: i18next-conv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"POT-Creation-Date: 2025-12-11T11:06:48.970Z\n"
+"PO-Revision-Date: 2025-12-11T11:06:48.970Z\n"
+
+msgid "Uncomplete attendance"
+msgstr "Uncomplete attendance"
+
+msgid "Complete attendance"
+msgstr "Complete attendance"
+
+msgid "Mark all as"
+msgstr "Mark all as"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Students will be affected"
+msgstr "Students will be affected"
+
+msgid "The chosen attendance status will be assigned to the selected students"
+msgstr "The chosen attendance status will be assigned to the selected students"
+
+msgid "Attendance"
+msgstr "Attendance"
+
+msgid "Bulk attendance"
+msgstr "Bulk attendance"
+
+msgid "Unknown error"
+msgstr "Unknown error"
+
+msgid "Import {{section}} atendances"
+msgstr "Import {{section}} atendances"
+
+msgid "Export {{section}} atendances"
+msgstr "Export {{section}} atendances"
+
+msgid "Please select an organisation unit before"
+msgstr "Please select an organisation unit before"
+
+msgid "Take attendance"
+msgstr "Take attendance"
+
+msgid "View attendance records"
+msgstr "View attendance records"
+
+msgid "Please select all filters"
+msgstr "Please select all filters"
+
+msgid "All listed students will be affected"
+msgstr "All listed students will be affected"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Yes im sure"
+msgstr "Yes im sure"
+
+msgid "Attendance title"
+msgstr "Attendance title"
+
+msgid "Selected date"
+msgstr "Selected date"
+
+msgid "Hide reason of absense"
+msgstr "Hide reason of absense"
+
+msgid "View teason of absense"
+msgstr "View teason of absense"
+
+msgid "SEMIS-Attendance"
+msgstr "SEMIS-Attendance"
+
+msgid "Follow the instructions to proceed"
+msgstr "Follow the instructions to proceed"
+
+msgid "Select the Organization unit you want to view data"
+msgstr "Select the Organization unit you want to view data"
+
+msgid "Use global filters(Class, Grade and Academic Year)"
+msgstr "Use global filters(Class, Grade and Academic Year)"
