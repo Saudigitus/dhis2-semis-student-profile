@@ -28,23 +28,13 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
   user-select: none;
 }
 
-.item:hover {
-  border-color: #cbd5e1;
-  background-color: #f8fafc;
-}
 
 .itemActive {
   background-color: #eff6ff;
   border-color: #93c5fd;
-  color: #1d4ed8;
+  color: #1E6194;
   font-weight: 600;
-}
-
-.itemActive:hover {
-  background-color: #eff6ff;
-  border-color: #93c5fd;
 }

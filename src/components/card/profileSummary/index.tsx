@@ -21,7 +21,7 @@ const CARD_DATA = [
     },
 ]
 
-const TestSumarryCard = () => {
+const SumarryCardComponent = () => {
     return (
         <div style={{ display: "flex", gap: "16px" }}>
             {CARD_DATA.map((card) => (
@@ -37,4 +37,4 @@ const TestSumarryCard = () => {
     )
 }
 
-export default TestSumarryCard
+export default SumarryCardComponent
