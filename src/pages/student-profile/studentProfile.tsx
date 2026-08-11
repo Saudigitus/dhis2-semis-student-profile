@@ -1,16 +1,26 @@
-import React, { useCallback } from 'react';
-import { D2I18n } from 'dhis2-semis-types';
+import React, { useCallback, useState } from 'react';
+import { D2I18n, Modules } from 'dhis2-semis-types';
 import ProfileDetail from '../../components/profile-detail/ProfileDetail';
 import { useGetProfile } from '../../hooks/profile/useGetProfile';
 import TabPanel from "../../components/tabs/TabPanel";
 import TestSumarryCard from "../../components/card/profileSummary/Test";
 import TestAcademicYearSelector from "../../components/chips/Test";
+import ModalManager from "../../components/modal/editProfile/ModalManager";
+import { useBuildForm, useGetSectionTypeLabel } from 'dhis2-semis-functions';
+import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
+import { profileFormFields } from '../../utils/constants/form/profileForm';
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
     const { loading, fields } = useGetProfile();
+    const { dataStoreData, program } = useGetSelectedKeys();
+    const { sectionName } = useGetSectionTypeLabel();
+    const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
+    const [openEditModal, setOpenEditModal] = useState<boolean>(false);
+
+    const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
 
     const handleEdit = useCallback(() => {
-        console.log('[StudentProfile] Edit profile requested');
+        setOpenEditModal(true);
     }, []);
 
     const handlePrintProfile = useCallback(() => {
@@ -46,13 +56,24 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                     onDeleteRecord={handleDeleteRecord}
                 />
             </div>
-             <div>
+            <div>
                 <TestAcademicYearSelector />
                 <div style={{ marginBottom: "15px" }} />
                 <TestSumarryCard />
                 <div style={{ marginBottom: "15px" }} />
                 <TabPanel />
             </div>
+
+            {openEditModal && (
+                <ModalManager
+                    i18n={i18n}
+                    saveMode="UPDATE"
+                    open={openEditModal}
+                    setOpen={setOpenEditModal}
+                    formFields={enrollmentFormFields}
+                    formVariablesFields={formData}
+                />
+            )}
         </>
-    )
+    );
 }
