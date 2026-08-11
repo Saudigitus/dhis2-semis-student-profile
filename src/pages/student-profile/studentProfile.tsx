@@ -3,8 +3,9 @@ import { D2I18n } from 'dhis2-semis-types';
 import ProfileDetail from '../../components/profile-detail/ProfileDetail';
 import { useGetProfile } from '../../hooks/profile/useGetProfile';
 import TabPanel from "../../components/tabs/TabPanel";
-import TestSumarryCard from "../../components/card/profileSummary/Test";
-import TestAcademicYearSelector from "../../components/chips/Test";
+import styles from "./studentProfile.module.css"
+import SumarryCardComponent from '../../components/card/profileSummary';
+import AcademicYearSelectorComponent from '../../components/chips';
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
     const { loading, fields } = useGetProfile();
@@ -33,26 +34,20 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     }, []);
 
     return (
-        <>
-            <div>
-                <ProfileDetail
-                    i18n={i18n}
-                    loading={loading}
-                    fields={fields}
-                    onEdit={handleEdit}
-                    onPrintProfile={handlePrintProfile}
-                    onExportRecord={handleExportRecord}
-                    onMarkAsDropout={handleMarkAsDropout}
-                    onDeleteRecord={handleDeleteRecord}
-                />
-            </div>
-             <div>
-                <TestAcademicYearSelector />
-                <div style={{ marginBottom: "15px" }} />
-                <TestSumarryCard />
-                <div style={{ marginBottom: "15px" }} />
-                <TabPanel />
-            </div>
-        </>
+        <div className={styles.wrapper}>
+            <ProfileDetail
+                i18n={i18n}
+                loading={loading}
+                fields={fields}
+                onEdit={handleEdit}
+                onPrintProfile={handlePrintProfile}
+                onExportRecord={handleExportRecord}
+                onMarkAsDropout={handleMarkAsDropout}
+                onDeleteRecord={handleDeleteRecord}
+            />
+            <AcademicYearSelectorComponent />
+            <SumarryCardComponent />
+            <TabPanel />
+        </div>
     )
 }
