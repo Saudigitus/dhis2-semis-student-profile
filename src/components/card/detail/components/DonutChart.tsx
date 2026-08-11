@@ -1,4 +1,10 @@
-import { FunctionComponent, useMemo } from "react";
+import {
+    FunctionComponent,
+    useMemo,
+    useState,
+    useId,
+    KeyboardEvent,
+} from "react";
 import styles from "./charts.module.css";
 
 export interface DonutSegment {
@@ -15,6 +21,13 @@ export interface DonutChartProps {
     showLegend?: boolean;
     className?: string;
     ariaLabel?: string;
+    /** NEW — opt-in enhancements, default to sensible "on" behavior */
+    showTooltip?: boolean;
+    animate?: boolean;
+    showCenterTotal?: boolean;
+    centerLabel?: string;
+    formatValue?: (value: number) => string;
+    onSegmentHover?: (segment: DonutSegment | null, index: number) => void;
 }
 
 const DEFAULT_COLORS = [
@@ -27,6 +40,8 @@ const DEFAULT_COLORS = [
     "#34495e",
     "#e67e22",
 ];
+
+const defaultFormatValue = (v: number) => `${v}`;
 
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
     const angleRad = ((angleDeg - 90) * Math.PI) / 180;
@@ -77,6 +92,11 @@ function buildRingPath(
     ].join(" ");
 }
 
+/** Midpoint angle of a segment, used to push a hovered wedge outward along its own radial line. */
+function midAngle(startAngle: number, endAngle: number) {
+    return (startAngle + endAngle) / 2;
+}
+
 const DonutChart: FunctionComponent<DonutChartProps> = (props) => {
     const {
         segments,
@@ -86,12 +106,22 @@ const DonutChart: FunctionComponent<DonutChartProps> = (props) => {
         showLegend = true,
         className,
         ariaLabel,
+        showTooltip = true,
+        animate = true,
+        showCenterTotal = false,
+        centerLabel = "Total",
+        formatValue = defaultFormatValue,
+        onSegmentHover,
     } = props;
+
+    const uid = useId();
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
     const cx = size / 2;
     const cy = size / 2;
     const outerR = outerRadius ?? Math.floor(size * 0.425);
     const innerR = innerRadius ?? Math.floor(size * 0.25);
+    const hoverOffset = Math.max(4, Math.floor(size * 0.03));
 
     const viewBox = `0 0 ${size} ${size}`;
 
@@ -115,37 +145,120 @@ const DonutChart: FunctionComponent<DonutChartProps> = (props) => {
         });
     }, [segments]);
 
+    const total = useMemo(
+        () => segments.reduce((s, seg) => s + Math.max(0, seg.value), 0),
+        [segments]
+    );
+
+    const setActive = (i: number | null) => {
+        setActiveIndex(i);
+        onSegmentHover?.(i !== null ? segments[i] ?? null : null, i ?? -1);
+    };
+
+    const handleLegendKeyDown = (e: KeyboardEvent<HTMLDivElement>, i: number) => {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setActive(activeIndex === i ? null : i);
+        }
+    };
+
+    const active = activeIndex !== null ? normalized[activeIndex] : null;
+
     return (
         <div className={`${styles.donutContainer} ${className ?? ""}`}>
-            <svg
-                className={styles.donutSvg}
-                viewBox={viewBox}
-                role="img"
-                aria-label={ariaLabel}
-                preserveAspectRatio="xMidYMid meet"
-            >
-                {normalized.map((seg, i) => {
-                    const d = buildRingPath(cx, cy, outerR, innerR, seg.startAngle, seg.endAngle);
-                    if (!d) return null;
-                    return (
-                        <path
-                            key={`seg-${i}-${seg.label}`}
-                            d={d}
-                            fill={seg.color}
-                            aria-label={`${seg.label}: ${seg.value}`}
-                        />
-                    );
-                })}
-            </svg>
+            <div className={styles.donutSvgWrap}>
+                <svg
+                    className={styles.donutSvg}
+                    viewBox={viewBox}
+                    role="img"
+                    aria-label={ariaLabel}
+                    preserveAspectRatio="xMidYMid meet"
+                    onPointerLeave={() => showTooltip && setActive(null)}
+                >
+                    {normalized.map((seg, i) => {
+                        const d = buildRingPath(
+                            cx,
+                            cy,
+                            outerR,
+                            innerR,
+                            seg.startAngle,
+                            seg.endAngle
+                        );
+                        if (!d) return null;
+                        const isActive = i === activeIndex;
+                        const angle = midAngle(seg.startAngle, seg.endAngle);
+                        const angleRad = ((angle - 90) * Math.PI) / 180;
+                        const offsetX = isActive ? Math.cos(angleRad) * hoverOffset : 0;
+                        const offsetY = isActive ? Math.sin(angleRad) * hoverOffset : 0;
+                        return (
+                            <path
+                                key={`seg-${i}-${seg.label}`}
+                                d={d}
+                                fill={seg.color}
+                                role="button"
+                                tabIndex={showTooltip ? 0 : undefined}
+                                aria-label={`${seg.label}: ${formatValue(seg.value)}`}
+                                className={`${styles.donutSegment} ${
+                                    animate ? styles.donutSegmentAnimate : ""
+                                } ${isActive ? styles.donutSegmentActive : ""}`}
+                                style={{
+                                    transform: `translate(${offsetX}px, ${offsetY}px)`,
+                                    animationDelay: animate ? `${i * 60}ms` : undefined,
+                                    opacity:
+                                        activeIndex !== null && !isActive ? 0.55 : 1,
+                                }}
+                                onPointerEnter={() => showTooltip && setActive(i)}
+                                onFocus={() => showTooltip && setActive(i)}
+                                onBlur={() => showTooltip && setActive(null)}
+                            />
+                        );
+                    })}
+                </svg>
+
+                {showCenterTotal && !active && (
+                    <div className={styles.donutCenter}>
+                        <div className={styles.donutCenterValue}>
+                            {formatValue(total)}
+                        </div>
+                        <div className={styles.donutCenterLabel}>{centerLabel}</div>
+                    </div>
+                )}
+
+                {showTooltip && active && (
+                    <div className={styles.donutCenter} role="status" aria-live="polite">
+                        <div className={styles.donutCenterValue}>
+                            {formatValue(active.value)}
+                        </div>
+                        <div className={styles.donutCenterLabel}>
+                            {active.label} · {Math.round(active.share * 100)}%
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {showLegend && (
                 <div className={styles.legend}>
                     {normalized.map((seg, i) => (
-                        <div key={`legend-${i}-${seg.label}`} className={styles.legendItem}>
+                        <div
+                            key={`legend-${i}-${seg.label}`}
+                            className={`${styles.legendItem} ${
+                                activeIndex === i ? styles.legendItemActive : ""
+                            }`}
+                            tabIndex={showTooltip ? 0 : undefined}
+                            role={showTooltip ? "button" : undefined}
+                            onPointerEnter={() => showTooltip && setActive(i)}
+                            onPointerLeave={() => showTooltip && setActive(null)}
+                            onFocus={() => showTooltip && setActive(i)}
+                            onBlur={() => showTooltip && setActive(null)}
+                            onKeyDown={(e) => showTooltip && handleLegendKeyDown(e, i)}
+                        >
                             <span
                                 className={styles.legendDot}
                                 style={{ backgroundColor: seg.color }}
                             />
-                            <span>{seg.label} ({seg.value})</span>
+                            <span>
+                                {seg.label} ({formatValue(seg.value)})
+                            </span>
                         </div>
                     ))}
                 </div>
