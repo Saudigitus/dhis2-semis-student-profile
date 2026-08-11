@@ -9,6 +9,7 @@ import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
 import { profileFormFields } from '../../utils/constants/form/profileForm';
 import SumarryCardComponent from '../../components/card/profileSummary';
 import AcademicYearSelectorComponent from '../../components/chips';
+import styles from "./studentProfile.module.css";
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
     const { loading, fields } = useGetProfile();
@@ -44,7 +45,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     }, []);
 
     return (
-        <>
+        <div className={styles.wrapper}>
             <div>
                 <ProfileDetail
                     i18n={i18n}
@@ -75,6 +76,6 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                     formVariablesFields={formData}
                 />
             )}
-        </>
+        </div>
     );
 }
