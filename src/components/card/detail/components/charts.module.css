@@ -1,0 +1,101 @@
+.chartWrapper {
+    width: 100%;
+    padding: 16px 8px 8px 8px;
+    box-sizing: border-box;
+}
+
+/* ====== Donut / Pie chart ====== */
+
+.donutContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.donutSvg {
+    display: block;
+    width: min(100%, 280px);
+    height: auto;
+    overflow: visible;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.legendItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.legendDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ====== Line / Area chart ====== */
+
+.lineChartContainer {
+    width: 100%;
+    position: relative;
+}
+
+.lineChartSvg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.gridLine {
+    stroke: #e2e8f0;
+    stroke-width: 1;
+}
+
+.yAxisLabel {
+    font-size: 13px;
+    font-weight: 500;
+    fill: #64748b;
+    dominant-baseline: middle;
+    text-anchor: end;
+}
+
+.xAxisLabel {
+    font-size: 14px;
+    font-weight: 500;
+    fill: #334155;
+    text-anchor: middle;
+    dominant-baseline: hanging;
+}
+
+.areaFill {
+    fill: #cfe2f3;
+    opacity: 0.35;
+}
+
+.dataLine {
+    fill: none;
+    stroke: #2963a3;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.dataPoint {
+    fill: #2963a3;
+    stroke: #ffffff;
+    stroke-width: 2;
+}
