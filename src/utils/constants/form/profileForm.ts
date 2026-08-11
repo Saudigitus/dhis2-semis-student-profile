@@ -1,7 +1,6 @@
-import { VariablesTypes } from "dhis2-semis-types";
 
 function profileFormFields({ formFieldsData, sectionName }: { formFieldsData: any[], sectionName?: string }) {
-    const [profileFields = []] = formFieldsData;
+    const [enrollmentDetails = [], studentsProfile = [], socioEconomicDetails = []] = formFieldsData;
 
     return [
         {
@@ -9,7 +8,7 @@ function profileFormFields({ formFieldsData, sectionName }: { formFieldsData: an
             description: "Student personal details",
             visible: true,
             fields: [
-                ...profileFields
+                ...studentsProfile
             ]
         }
     ];

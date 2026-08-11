@@ -19,6 +19,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
 
     const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
 
+    console.log(enrollmentFormFields, "enrollmentFormFields")
     const handleEdit = useCallback(() => {
         setOpenEditModal(true);
     }, []);
