@@ -147,12 +147,11 @@ export function useGetProfile() {
             const teis = await getTeis({
                 program: dataStoreData.program,
                 trackedEntities: [trackedEntity],
-                fields: 'trackedEntity,attributes[attribute,value]',
+                fields: 'trackedEntity,attributes[attribute,value],enrollments[enrollment,orgUnit,program,status,enrolledAt,occurredAt,events[dataValues[dataElement,value]]]',
             } as any);
 
-            const tei = teis?.[0];
-            if (tei?.attributes) {
-                setProfileDetails(tei);
+            if (teis?.[0]?.attributes) {
+                setProfileDetails(teis[0]);
             }
         } catch (error) {
             console.error('Error fetching student profile:', error);
