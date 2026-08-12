@@ -63,7 +63,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 <div style={{ marginBottom: "15px" }} />
                 <SumarryCardComponent />
                 <div style={{ marginBottom: "15px" }} />
-                <TabPanel />
+                <TabPanel i18n={i18n} />
             </div>
 
             {openEditModal && (
