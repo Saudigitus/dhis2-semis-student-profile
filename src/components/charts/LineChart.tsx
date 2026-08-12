@@ -265,164 +265,166 @@ const LineChart: FunctionComponent<LineChartProps> = (props) => {
     const tooltipWidth = 120;
     const tooltipX = active
         ? Math.min(
-              Math.max(active.x - tooltipWidth / 2, padding.left),
-              width - padding.right - tooltipWidth
-          )
+            Math.max(active.x - tooltipWidth / 2, padding.left),
+            width - padding.right - tooltipWidth
+        )
         : 0;
 
     return (
-        <div className={`${styles.lineChartContainer} ${className ?? ""}`}>
-            <svg
-                ref={svgRef}
-                className={`${styles.lineChartSvg} ${animate ? styles.animate : ""}`}
-                viewBox={viewBox}
-                role="img"
-                aria-label={ariaLabel}
-                preserveAspectRatio="xMidYMid meet"
-                tabIndex={showTooltip ? 0 : undefined}
-                onPointerMove={showTooltip ? handlePointerMove : undefined}
-                onPointerLeave={showTooltip ? handlePointerLeave : undefined}
-                onKeyDown={showTooltip ? handleKeyDown : undefined}
-            >
-                <defs>
-                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={areaColor} stopOpacity={0.55} />
-                        <stop offset="100%" stopColor={areaColor} stopOpacity={0.02} />
-                    </linearGradient>
-                </defs>
+        <div className={styles.chartWrapper}>
+            <div className={`${styles.lineChartContainer} ${className ?? ""}`}>
+                <svg
+                    ref={svgRef}
+                    className={`${styles.lineChartSvg} ${animate ? styles.animate : ""}`}
+                    viewBox={viewBox}
+                    role="img"
+                    aria-label={ariaLabel}
+                    preserveAspectRatio="xMidYMid meet"
+                    tabIndex={showTooltip ? 0 : undefined}
+                    onPointerMove={showTooltip ? handlePointerMove : undefined}
+                    onPointerLeave={showTooltip ? handlePointerLeave : undefined}
+                    onKeyDown={showTooltip ? handleKeyDown : undefined}
+                >
+                    <defs>
+                        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={areaColor} stopOpacity={0.55} />
+                            <stop offset="100%" stopColor={areaColor} stopOpacity={0.02} />
+                        </linearGradient>
+                    </defs>
 
-                {showGrid &&
-                    chart.yTicks.map((tick) => {
-                        const y =
-                            padding.top +
-                            chart.innerH -
-                            ((tick - chart.yAxisMin) /
-                                Math.max(0.0001, chart.yAxisMax - chart.yAxisMin)) *
+                    {showGrid &&
+                        chart.yTicks.map((tick) => {
+                            const y =
+                                padding.top +
+                                chart.innerH -
+                                ((tick - chart.yAxisMin) /
+                                    Math.max(0.0001, chart.yAxisMax - chart.yAxisMin)) *
                                 chart.innerH;
-                        return (
-                            <line
-                                key={`grid-${tick}`}
-                                className={styles.gridLine}
-                                x1={padding.left}
-                                y1={y}
-                                x2={padding.left + chart.innerW}
-                                y2={y}
-                            />
-                        );
-                    })}
-
-                {showYAxis &&
-                    chart.yTicks.map((tick) => {
-                        const y =
-                            padding.top +
-                            chart.innerH -
-                            ((tick - chart.yAxisMin) /
-                                Math.max(0.0001, chart.yAxisMax - chart.yAxisMin)) *
-                                chart.innerH;
-                        return (
-                            <text
-                                key={`y-${tick}`}
-                                className={styles.yAxisLabel}
-                                x={padding.left - 10}
-                                y={y}
-                            >
-                                {tick}
-                                {yAxisUnit}
-                            </text>
-                        );
-                    })}
-
-                {showArea && chart.areaPath && (
-                    <path
-                        d={chart.areaPath}
-                        fill={`url(#${gradientId})`}
-                        aria-hidden="true"
-                        className={animate ? styles.areaAnimate : undefined}
-                    />
-                )}
-
-                {/* Hover crosshair */}
-                {showTooltip && active && (
-                    <line
-                        className={styles.crosshair}
-                        x1={active.x}
-                        y1={padding.top}
-                        x2={active.x}
-                        y2={chart.baselineY}
-                    />
-                )}
-
-                {chart.linePath && (
-                    <path
-                        d={chart.linePath}
-                        fill="none"
-                        stroke={lineColor}
-                        strokeWidth={3}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className={animate ? styles.lineAnimate : undefined}
-                        pathLength={animate ? 1 : undefined}
-                    />
-                )}
-
-                {chart.points.map((p, i) => {
-                    const isExtreme =
-                        highlightExtremes && (i === chart.maxIdx || i === chart.minIdx);
-                    const isActive = i === activeIndex;
-                    return (
-                        <g key={`pt-${i}`}>
-                            {showPoints && (
-                                <circle
-                                    cx={p.x}
-                                    cy={p.y}
-                                    r={isActive ? pointRadius + 3 : pointRadius}
-                                    fill={isExtreme ? "#c0392b" : lineColor}
-                                    stroke="#ffffff"
-                                    strokeWidth={2}
-                                    className={styles.point}
+                            return (
+                                <line
+                                    key={`grid-${tick}`}
+                                    className={styles.gridLine}
+                                    x1={padding.left}
+                                    y1={y}
+                                    x2={padding.left + chart.innerW}
+                                    y2={y}
                                 />
-                            )}
-                            {highlightExtremes && isExtreme && (
+                            );
+                        })}
+
+                    {showYAxis &&
+                        chart.yTicks.map((tick) => {
+                            const y =
+                                padding.top +
+                                chart.innerH -
+                                ((tick - chart.yAxisMin) /
+                                    Math.max(0.0001, chart.yAxisMax - chart.yAxisMin)) *
+                                chart.innerH;
+                            return (
                                 <text
-                                    className={styles.extremeLabel}
-                                    x={p.x}
-                                    y={p.y + (i === chart.maxIdx ? -14 : 22)}
+                                    key={`y-${tick}`}
+                                    className={styles.yAxisLabel}
+                                    x={padding.left - 10}
+                                    y={y}
                                 >
-                                    {formatValue(p.value)}
+                                    {tick}
                                     {yAxisUnit}
                                 </text>
-                            )}
-                            {showXAxis && (
-                                <text
-                                    className={styles.xAxisLabel}
-                                    x={p.x}
-                                    y={padding.top + chart.innerH + 16}
-                                >
-                                    {p.label}
-                                </text>
-                            )}
-                        </g>
-                    );
-                })}
-            </svg>
+                            );
+                        })}
 
-            {showTooltip && active && (
-                <div
-                    className={styles.tooltip}
-                    style={{
-                        left: `${(tooltipX / width) * 100}%`,
-                        top: `${(active.y / height) * 100}%`,
-                    }}
-                    role="status"
-                    aria-live="polite"
-                >
-                    <div className={styles.tooltipLabel}>{active.label}</div>
-                    <div className={styles.tooltipValue}>
-                        {formatValue(active.value)}
-                        {yAxisUnit}
+                    {showArea && chart.areaPath && (
+                        <path
+                            d={chart.areaPath}
+                            fill={`url(#${gradientId})`}
+                            aria-hidden="true"
+                            className={animate ? styles.areaAnimate : undefined}
+                        />
+                    )}
+
+                    {/* Hover crosshair */}
+                    {showTooltip && active && (
+                        <line
+                            className={styles.crosshair}
+                            x1={active.x}
+                            y1={padding.top}
+                            x2={active.x}
+                            y2={chart.baselineY}
+                        />
+                    )}
+
+                    {chart.linePath && (
+                        <path
+                            d={chart.linePath}
+                            fill="none"
+                            stroke={lineColor}
+                            strokeWidth={3}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={animate ? styles.lineAnimate : undefined}
+                            pathLength={animate ? 1 : undefined}
+                        />
+                    )}
+
+                    {chart.points.map((p, i) => {
+                        const isExtreme =
+                            highlightExtremes && (i === chart.maxIdx || i === chart.minIdx);
+                        const isActive = i === activeIndex;
+                        return (
+                            <g key={`pt-${i}`}>
+                                {showPoints && (
+                                    <circle
+                                        cx={p.x}
+                                        cy={p.y}
+                                        r={isActive ? pointRadius + 3 : pointRadius}
+                                        fill={isExtreme ? "#c0392b" : lineColor}
+                                        stroke="#ffffff"
+                                        strokeWidth={2}
+                                        className={styles.point}
+                                    />
+                                )}
+                                {highlightExtremes && isExtreme && (
+                                    <text
+                                        className={styles.extremeLabel}
+                                        x={p.x}
+                                        y={p.y + (i === chart.maxIdx ? -14 : 22)}
+                                    >
+                                        {formatValue(p.value)}
+                                        {yAxisUnit}
+                                    </text>
+                                )}
+                                {showXAxis && (
+                                    <text
+                                        className={styles.xAxisLabel}
+                                        x={p.x}
+                                        y={padding.top + chart.innerH + 16}
+                                    >
+                                        {p.label}
+                                    </text>
+                                )}
+                            </g>
+                        );
+                    })}
+                </svg>
+
+                {showTooltip && active && (
+                    <div
+                        className={styles.tooltip}
+                        style={{
+                            left: `${(tooltipX / width) * 100}%`,
+                            top: `${(active.y / height) * 100}%`,
+                        }}
+                        role="status"
+                        aria-live="polite"
+                    >
+                        <div className={styles.tooltipLabel}>{active.label}</div>
+                        <div className={styles.tooltipValue}>
+                            {formatValue(active.value)}
+                            {yAxisUnit}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 };

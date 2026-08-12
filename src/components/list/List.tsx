@@ -1,6 +1,6 @@
+import styles from "./list.module.css";
 import { FunctionComponent } from "react";
 import { D2I18n } from "dhis2-semis-types";
-import styles from "../detailCard.module.css";
 
 interface Item {
     label: string;
