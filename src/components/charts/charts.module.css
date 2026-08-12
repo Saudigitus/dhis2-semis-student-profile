@@ -1,0 +1,345 @@
+.chartWrapper {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 16px 8px 8px 8px;
+}
+
+.donutContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.donutSvg {
+    display: block;
+    width: min(100%, 280px);
+    height: auto;
+    overflow: visible;
+}
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.legendItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.legendDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ====== Line / Area chart ====== */
+
+.lineChartContainer {
+    width: 100%;
+    position: relative;
+}
+
+.lineChartSvg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.gridLine {
+    stroke: #e2e8f0;
+    stroke-width: 1;
+}
+
+.yAxisLabel {
+    font-size: 13px;
+    font-weight: 500;
+    fill: #64748b;
+    dominant-baseline: middle;
+    text-anchor: end;
+}
+
+.xAxisLabel {
+    font-size: 14px;
+    font-weight: 500;
+    fill: #334155;
+    text-anchor: middle;
+    dominant-baseline: hanging;
+}
+
+.areaFill {
+    fill: #cfe2f3;
+    opacity: 0.35;
+}
+
+.dataLine {
+    fill: none;
+    stroke: #2963a3;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.dataPoint {
+    fill: #2963a3;
+    stroke: #ffffff;
+    stroke-width: 2;
+}
+
+.lineChartContainer {
+    position: relative;
+    width: 100%;
+}
+
+.lineChartSvg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.gridLine {
+    stroke: #e4e8ee;
+    stroke-width: 1;
+}
+
+.yAxisLabel {
+    font-size: 11px;
+    fill: #6b7280;
+    text-anchor: end;
+    dominant-baseline: middle;
+    font-variant-numeric: tabular-nums;
+}
+
+.xAxisLabel {
+    font-size: 11px;
+    fill: #6b7280;
+    text-anchor: middle;
+}
+
+.extremeLabel {
+    font-size: 11px;
+    font-weight: 600;
+    fill: #c0392b;
+    text-anchor: middle;
+}
+
+.point {
+    transition: r 150ms ease, fill 150ms ease;
+    cursor: pointer;
+}
+
+.crosshair {
+    stroke: #9ca3af;
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    pointer-events: none;
+}
+
+/* Line draw-in animation */
+.lineAnimate {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw-line 900ms ease-out forwards;
+}
+
+@keyframes draw-line {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.areaAnimate {
+    opacity: 0;
+    animation: fade-in-area 600ms ease-out 400ms forwards;
+}
+
+@keyframes fade-in-area {
+    to {
+        opacity: 1;
+    }
+}
+
+.lineChartSvg:focus {
+    outline: 2px solid #2963a3;
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.tooltip {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 14px));
+    background: #1f2937;
+    color: #ffffff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1f2937;
+}
+
+.tooltipLabel {
+    color: #9ca3af;
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.tooltipValue {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .lineAnimate,
+    .areaAnimate {
+        animation: none;
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+
+    .point {
+        transition: none;
+    }
+}
+
+/* ===== DonutChart ===== */
+
+.donutContainer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.donutSvgWrap {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.donutSvg {
+    display: block;
+    overflow: visible;
+}
+
+.donutSegment {
+    cursor: pointer;
+    transition: transform 180ms ease, opacity 180ms ease;
+    transform-origin: center;
+    outline: none;
+}
+
+.donutSegment:focus-visible {
+    filter: drop-shadow(0 0 0 2px #ffffff) drop-shadow(0 0 0 4px #2963a3);
+}
+
+.donutSegmentActive {
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+.donutSegmentAnimate {
+    animation: donut-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes donut-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.donutCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    max-width: 70%;
+}
+
+.donutCenterValue {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.donutCenterLabel {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #374151;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 150ms ease, opacity 150ms ease;
+}
+
+.legendItem:hover,
+.legendItemActive {
+    background-color: #f3f4f6;
+}
+
+.legendItem:focus-visible {
+    outline: 2px solid #2963a3;
+    outline-offset: 1px;
+}
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .donutSegmentAnimate {
+        animation: none;
+    }
+
+    .donutSegment {
+        transition: opacity 150ms ease;
+    }
+}
