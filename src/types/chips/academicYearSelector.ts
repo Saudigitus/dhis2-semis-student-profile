@@ -10,6 +10,7 @@ interface AcademicYearSelectorProps {
     onChange: (year: string) => void;
     label?: string;
     className?: string;
+    maxVisible?: number;
 }
 
 export type { AcademicYearSelectorProps };
