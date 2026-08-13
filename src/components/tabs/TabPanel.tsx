@@ -13,13 +13,16 @@ import DetailCard from '../card/detail/DetailCard';
 
 interface TabPanelProps {
     i18n?: D2I18n;
+    loading?: boolean;
+    attributes?: any
+    attributeColumns?: any
 }
 
 function TabPanel(props: TabPanelProps): React.ReactElement {
-    const { i18n } = props
+    const { i18n, loading, attributes, attributeColumns } = props
     const { add, useQuery } = useUrlParams()
     const selectedTab = useQuery.get('tab')
-    const { dataStoreData } = useGetSelectedKeys()
+    const { } = useGetSelectedKeys()
 
     const helper = {
         "identityCard": {
@@ -202,10 +205,13 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
         ?.map((tab) => ({
             value: tab?.id,
             name: tab?.displayName,
-            component: <div key={tab.id}>
+            component: <div
+                key={tab.id}
+                className={tab?.components?.length > 1 ? styles.panelgrid : ''}
+            >
                 {[...tab.components]
                     .map(component => {
-                        const Component = componentsMapping[component.type]
+                        const Component = componentsMapping[component?.type]
 
                         if (!Component) {
                             return null
@@ -215,11 +221,15 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                             <DetailCard
                                 badge=''
                                 i18n={i18n}
-                                title={tab?.displayName}
-                                action={component.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
+                                key={`${tab.id}-${component?.order}`}
+                                title={component?.displayName ?? tab?.displayName}
+                                action={component?.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
                             >
                                 <Component
-                                    key={`${tab.id}-${component.order}`}
+                                    loading={loading}
+                                    data={attributes}
+                                    columns={attributeColumns}
+                                    pageSize={component?.details?.pageSize}
                                 />
                             </DetailCard>
                         )
@@ -238,7 +248,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                 onClick={() => add('tab', element.value)}
                                 selected={selectedTab === element.value}
                             >
-                                <WithPadding p="0px">{element.name} </WithPadding>
+                                <WithPadding p="0">{element.name} </WithPadding>
                             </Tab>
                         ))}
                     </TabBar>

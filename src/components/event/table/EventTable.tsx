@@ -10,99 +10,12 @@ interface TableColumn {
 }
 
 interface SimpleTableProps {
-    data?: any[]
+    data: any[]
     columns?: TableColumn[]
     pageSize?: number
     loading?: boolean
     emptyMessage?: string
 }
-
-const mockEvents = [
-    {
-        event: 'event-001',
-        occurredAt: '2026-08-01',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-002',
-        occurredAt: '2026-07-25',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-003',
-        occurredAt: '2026-07-18',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-004',
-        occurredAt: '2026-07-11',
-        status: 'ACTIVE',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-005',
-        occurredAt: '2026-07-04',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-006',
-        occurredAt: '2026-06-27',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-007',
-        occurredAt: '2026-06-20',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-008',
-        occurredAt: '2026-06-13',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-009',
-        occurredAt: '2026-06-06',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-010',
-        occurredAt: '2026-05-30',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-011',
-        occurredAt: '2026-05-23',
-        status: 'ACTIVE',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-012',
-        occurredAt: '2026-05-16',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-]
 
 const columnss = [
     {
@@ -124,20 +37,9 @@ const columnss = [
 ]
 
 const EventTable = (props: SimpleTableProps) => {
-    const {
-        columns = columnss,
-        data = mockEvents,
-        emptyMessage = 'No data found.',
-        loading = false,
-        pageSize = 5,
-    } = props
-
+    const { columns = columnss, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, } = props
     const [page, setPage] = useState(1)
-
-    const pageCount = Math.max(
-        1,
-        Math.ceil(data.length / pageSize)
-    )
+    const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
 
     useEffect(() => {
         if (page > pageCount) {
@@ -154,23 +56,16 @@ const EventTable = (props: SimpleTableProps) => {
 
     const getValue = (row: any, key: string) => {
         return key
-            .split('.')
-            .reduce(
-                (value, key) => value?.[key],
-                row
-            )
+            ?.split('.')
+            ?.reduce((value, key) => value?.[key], row)
     }
 
     const handlePrevious = () => {
-        setPage(current =>
-            Math.max(current - 1, 1)
-        )
+        setPage(current => Math.max(current - 1, 1))
     }
 
     const handleNext = () => {
-        setPage(current =>
-            Math.min(current + 1, pageCount)
-        )
+        setPage(current => Math.min(current + 1, pageCount))
     }
 
     if (loading) {

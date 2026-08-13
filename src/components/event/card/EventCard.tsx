@@ -2,118 +2,29 @@ import { useState } from 'react'
 import { Button } from '@dhis2/ui'
 import styles from './card.module.css'
 
-const mockEvents = [
-    {
-        event: 'event-001',
-        occurredAt: '2026-08-01',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-002',
-        occurredAt: '2026-07-25',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-003',
-        occurredAt: '2026-07-18',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-004',
-        occurredAt: '2026-07-11',
-        status: 'ACTIVE',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-005',
-        occurredAt: '2026-07-04',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-006',
-        occurredAt: '2026-06-27',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-007',
-        occurredAt: '2026-06-20',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-008',
-        occurredAt: '2026-06-13',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-009',
-        occurredAt: '2026-06-06',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-010',
-        occurredAt: '2026-05-30',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-011',
-        occurredAt: '2026-05-23',
-        status: 'ACTIVE',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-    {
-        event: 'event-012',
-        occurredAt: '2026-05-16',
-        status: 'COMPLETED',
-        orgUnit: 'Primary School A',
-        programStage: 'Attendance',
-    },
-]
+interface EventCardProps {
+    data: any[],
+    pageSize?: number,
+    loading?: boolean,
+}
 
-const EventCard = ({
-    data = mockEvents,
-    pageSize = 4,
-}) => {
+const EventCard = (props: EventCardProps) => {
+    const { data, pageSize = 10, loading = false } = props;
     const [page, setPage] = useState(1)
+    const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
+    const currentEvents = data.slice((page - 1) * pageSize, page * pageSize)
 
-    const pageCount = Math.ceil(data.length / pageSize)
-
-    const currentEvents = data.slice(
-        (page - 1) * pageSize,
-        page * pageSize
-    )
+    if (loading) {
+        return (
+            <div className={styles.loading}>Loading...</div>
+        )
+    }
 
     const formatDate = (date: string) => {
-        if (!date) {
-            return '-'
-        }
+        if (!date) { return '-' }
 
-        return new Date(date).toLocaleDateString(
-            'en-GB',
-            {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-            }
+        return new Date(date).toLocaleDateString('en-GB',
+            { day: '2-digit', month: 'short', year: 'numeric', }
         )
     }
 
@@ -121,9 +32,7 @@ const EventCard = ({
         <div className={styles.container}>
             <div className={styles.cards}>
                 {currentEvents.map(event => (
-                    <div
-                        key={event.event}
-                        className={styles.card}
+                    <div key={event.event} className={styles.card}
                     >
                         <div className={styles.cardHeader}>
                             <div>
@@ -137,10 +46,7 @@ const EventCard = ({
                             </div>
 
                             <div
-                                className={`${styles.status} ${event.status === 'COMPLETED'
-                                        ? styles.completed
-                                        : styles.active
-                                    }`}
+                                className={`${styles.status} ${event.status === 'COMPLETED' ? styles.completed : styles.active}`}
                             >
                                 {event.status}
                             </div>
@@ -171,10 +77,7 @@ const EventCard = ({
                         </div>
 
                         <div className={styles.cardFooter}>
-                            <Button
-                                small
-                                secondary
-                            >
+                            <Button small secondary >
                                 View details
                             </Button>
                         </div>
