@@ -7,18 +7,18 @@ interface Item {
     value?: string;
 }
 
-interface DetailCardListProps {
+interface ListProps {
     i18n: D2I18n;
     items: Item[];
     notRecorded?: string;
 }
 
-const DetailCardList: FunctionComponent<DetailCardListProps> = (props) => {
+const ListComponent: FunctionComponent<ListProps> = (props) => {
     const { i18n, items, notRecorded = "Not recorded", } = props;
 
     return (
         <>
-            {items.map((item) => {
+            {items?.map((item) => {
                 const isNotRecorded = !item.value || item.value === notRecorded;
 
                 return (
@@ -34,4 +34,4 @@ const DetailCardList: FunctionComponent<DetailCardListProps> = (props) => {
     );
 };
 
-export default DetailCardList;
+export default ListComponent;

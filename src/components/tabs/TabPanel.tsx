@@ -5,9 +5,11 @@ import React, { useEffect } from 'react'
 import { D2I18n } from "dhis2-semis-types";
 import { useUrlParams } from "dhis2-semis-functions";
 import { EventTable, EventCard } from "../event/index"
-import { ProfileSummary } from '../summary/ProfileSummary';
 import { WithBorder, WithPadding } from "dhis2-semis-components";
 import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
+import ListComponent from '../list/List';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import DetailCard from '../card/detail/DetailCard';
 
 interface TabPanelProps {
     i18n?: D2I18n;
@@ -17,7 +19,6 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
     const { i18n } = props
     const { add, useQuery } = useUrlParams()
     const selectedTab = useQuery.get('tab')
-    const { ProfileDetails } = ProfileSummary({ i18n })
     const { dataStoreData } = useGetSelectedKeys()
 
     const helper = {
@@ -187,44 +188,44 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
     }
 
     useEffect(() => {
-        add('tab', 'profile-summary')
+        add('tab', helper?.tabs?.sort((a, b) => a.order - b.order)[0]?.id)
     }, [])
 
     const componentsMapping: any = {
-        "TEI_FORM": ProfileDetails,
+        "TEI_FORM": ListComponent,
         "EVENT_TABLE": EventTable,
         "EVENT_CARDS": EventCard,
     }
 
-    const tabsElements = helper?.tabs?.map((tab) => ({
-        value: tab?.id,
-        name: tab?.displayName,
-        component: <div key={tab.id}>
-            {[...tab.components]
-                .map(component => {
-                    const Component = componentsMapping[component.type]
+    const tabsElements = helper?.tabs
+        ?.sort((a, b) => a.order - b.order)
+        ?.map((tab) => ({
+            value: tab?.id,
+            name: tab?.displayName,
+            component: <div key={tab.id}>
+                {[...tab.components]
+                    .map(component => {
+                        const Component = componentsMapping[component.type]
 
-                    if (!Component) {
-                        return null
-                    }
+                        if (!Component) {
+                            return null
+                        }
 
-                    return (
-                        <Component
-                        // {...component}
-                        // component={component}
-                        // program={helper.program}
-                        // key={`${tab.id}-${component.order}`}
-                        />
-                    )
-                })}
-        </div>
-    }))
-
-    // [
-    //     { name: i18n.t('Profile Summary'), value: 'profile-summary', component: <ProfileDetails /> },
-    //     { name: i18n.t('Profile Summary'), value: 'profile-summary-1', component: <ChartsRow /> },
-    //     { name: i18n.t('Profile Summary'), value: 'profile-summary-2', component: <ChartsRow /> },
-    // ]
+                        return (
+                            <DetailCard
+                                badge=''
+                                i18n={i18n}
+                                title={tab?.displayName}
+                                action={component.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
+                            >
+                                <Component
+                                    key={`${tab.id}-${component.order}`}
+                                />
+                            </DetailCard>
+                        )
+                    })}
+            </div>
+        }))
 
     return (
         <Paper >
