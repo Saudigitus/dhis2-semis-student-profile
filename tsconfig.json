@@ -1,11 +1,10 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
-        "target": "es6",
+        "target": "es5",
         "lib": [
-            "dom",
-            "dom.iterable",
-            "esnext"
+            "es2021",
+            "dom"
         ],
         "allowJs": true,
         "skipLibCheck": true,
@@ -22,13 +21,22 @@
         "declarationDir": "./dist/declarations",
         "jsx": "preserve",
         "outDir": "./dist",
-        "rootDir": "./src",
+        "rootDir": "../..",
+        "paths": {
+            "dhis2-semis-components": [
+                "../../libs/components/src"
+            ],
+            "dhis2-semis-functions": [
+                "../../libs/functions/src"
+            ],
+            "dhis2-semis-types": [
+                "../../libs/types/src"
+            ]
+        }
     },
     "exclude": [
         "node_modules",
         "dist",
-        "src/app/*",
-        "src/routes/*",
         "src/locales/*",
         "tsconfig.tsbuildinfo"
     ],

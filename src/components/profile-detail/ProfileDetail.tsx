@@ -35,10 +35,11 @@ type ProfileDetailProps = {
 };
 
 function BadgeTag({ badge, i18n }: { badge: ResolvedBadge; i18n: D2I18n }) {
+    console.log(badge, "badge")
     const displayValue = badge.value ?? i18n.t('Not recorded');
-    const isPositive = badge.source === 'FINAL_RESULT_STATUS'
-        ? badge.value === 'APPROVED' || badge.value === 'PASS'
-        : true;
+    const isPositive = badge.source === 'FINAL_RESULT_STATUS' ? badge.value : true;
+
+
 
     return (
         <Tag

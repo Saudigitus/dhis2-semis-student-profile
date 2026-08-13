@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useGetTeis } from 'dhis2-semis-functions';
+import { useGetTeis, useUrlParams } from 'dhis2-semis-functions';
 import useGetSelectedKeys from '../config/useGetSelectedKeys';
 import { profileDetails } from '../../schema/profile/profile-details';
-import type { selectedDataStoreKey } from 'dhis2-semis-types';
+import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
+import { SchoolCalendarData } from 'dhis2-semis-components';
 
 type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
 type IdentityBadge = IdentityCard['badges'][number];
@@ -36,6 +37,47 @@ export function getAttributeValue(
     return match?.value;
 }
 
+export function getFinalResultStatusValue(
+    academicYear?: string,
+    dataStoreData?: selectedDataStoreKey,
+    enrollmentData?: any[],
+    schoolCalendarData?: SchoolCalendarDataStoreRecord,
+): string | undefined {
+
+    const finalResult = dataStoreData?.['final-result'];
+    const registration = dataStoreData?.registration;
+    const academicYearId = schoolCalendarData?.academicYear
+
+    const enrollment = enrollmentData?.find(({ events }: any) =>
+        events?.some((event: any) => {
+            const matchesRegistrationStage =
+                event.programStage === registration.programStage;
+
+            const matchesAcademicYear = event.dataValues?.some(
+                (dataValue: any) =>
+                    dataValue.dataElement === academicYearId &&
+                    dataValue.value === academicYear,
+            );
+
+            return matchesRegistrationStage && matchesAcademicYear;
+        }),
+    );
+
+    if (!enrollment) {
+        return undefined;
+    }
+
+    const finalResultEvent = enrollment.events?.find(
+        ({ programStage }: any) =>
+            programStage === finalResult.programStage,
+    );
+
+    return finalResultEvent?.dataValues?.find(
+        ({ dataElement }: any) =>
+            dataElement === finalResult?.status,
+    )?.value;
+}
+
 export function resolveTextFromConfig(
     attributes: AttributeListItem[] | undefined,
     config: { attributes: string[]; separator: string } | undefined,
@@ -54,15 +96,18 @@ export function resolveBadges(
     finalResultStatus?: string,
 ): ResolvedBadge[] {
     if (!badges?.length) return [];
+
     return [...badges]
         .sort((a, b) => a.order - b.order)
         .map((badge) => {
             let value: string | undefined;
+
             if (badge.source === 'FINAL_RESULT_STATUS') {
                 value = finalResultStatus;
             } else if (badge.source === 'ATTRIBUTE' && badge.variable) {
                 value = getAttributeValue(attributes, badge.variable);
             }
+
             return {
                 order: badge.order,
                 source: badge.source,
@@ -93,9 +138,12 @@ export function resolveProfileFields(
 export function useGetProfile() {
     const location = useLocation();
     const { getTeis } = useGetTeis();
+    const { urlParameters } = useUrlParams();
+    const { academicYear } = urlParameters
     const { dataStoreData } = useGetSelectedKeys();
     const [loading, setLoading] = useState<boolean>(false);
     const [profileDetailsState, setProfileDetails] = useRecoilState(profileDetails);
+    const schoolCalendarData = useRecoilValue(SchoolCalendarData);
 
     const trackedEntity = location.pathname.split('/').filter(Boolean).pop();
 
@@ -109,17 +157,6 @@ export function useGetProfile() {
         [profileDetailsState],
     );
 
-    const finalResultStatus = useMemo(() => {
-        const finalResult = dataStoreData?.['final-result'];
-        if (!finalResult?.status || !profileDetailsState?.enrollments) return undefined;
-        const enrollment = profileDetailsState.enrollments[0];
-        if (!enrollment?.events) return undefined;
-        const event = enrollment.events.find(
-            (e: any) => e.programStage === finalResult.programStage,
-        );
-        return event?.status;
-    }, [dataStoreData, profileDetailsState]);
-
     const studentName = useMemo(
         () => resolveTextFromConfig(attributes, identityCard?.title, profileDetailsState?.displayName),
         [attributes, identityCard, profileDetailsState?.displayName],
@@ -127,11 +164,11 @@ export function useGetProfile() {
 
     const fields = useMemo<ResolvedProfileFields>(
         () =>
-            resolveProfileFields(attributes, identityCard, finalResultStatus, {
+            resolveProfileFields(attributes, identityCard, getFinalResultStatusValue(academicYear!, dataStoreData, profileDetailsState?.enrollments, schoolCalendarData), {
                 trackedEntity,
                 displayName: profileDetailsState?.displayName,
             }),
-        [attributes, identityCard, finalResultStatus, trackedEntity, profileDetailsState?.displayName],
+        [attributes, identityCard, academicYear, trackedEntity, profileDetailsState?.displayName],
     );
 
     const getProfile = async () => {
@@ -143,7 +180,7 @@ export function useGetProfile() {
             const teis = await getTeis({
                 program: dataStoreData.program,
                 trackedEntities: [trackedEntity],
-                fields: 'trackedEntity,attributes[attribute,value],enrollments[enrollment,orgUnit,program,status,enrolledAt,occurredAt,events[dataValues[dataElement,value]]]',
+                fields: 'enrollments[*,!attributes],attributes',
             } as any);
 
             if (teis?.[0]?.attributes) {
