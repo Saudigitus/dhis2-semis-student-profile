@@ -1,7 +1,7 @@
 .wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 3px;
   font-size: 14px;
   color: #64748b;
 }
@@ -20,7 +20,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
+  padding: 4px 12.5px;
   border-radius: 9999px;
   border: 1px solid #e2e8f0;
   background-color: #ffffff;

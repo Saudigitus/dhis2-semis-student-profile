@@ -1,28 +1,19 @@
 import React, { useState } from 'react'
 import AcademicYearSelector from './AcademicYearSelector';
 import { YearOption } from '../../types/chips/academicYearSelector';
-
-const years: YearOption[] = [
-    { order: 1, label: "2026", code: "2026" },
-    { order: 2, label: "2025", code: "2025" },
-    { order: 3, label: "2024", code: "2024" },
-    { order: 4, label: "2023", code: "2023" },
-];
-
-const years2: YearOption[] = [
-    { order: 1, label: "2025/2026", code: "2025/2026" },
-    { order: 2, label: "2024/2025", code: "2024/2025" },
-    { order: 3, label: "2023/2024", code: "2023/2024" },
-    { order: 3, label: "2023/2024", code: "2024/2023" },
-    { order: 3, label: "2023/2024", code: "2023/2022" },
-];
+import { useRecoilValue } from 'recoil';
+//@ts-ignore
+import { SchoolCalendarData } from "dhis2-semis-components";
+import { academicYear } from '../../utils/profile/formatAcademicYear';
 
 const AcademicYearSelectorComponent = () => {
-    const [selectedYear, setSelectedYear] = useState("2025/2026");
+    const academicYearDataStore: any = useRecoilValue(SchoolCalendarData)
+    const academicYearOptions: YearOption[] = academicYear(academicYearDataStore?.schoolCalendar)
+    const [selectedYear, setSelectedYear] = useState(academicYearOptions?.[0].code || "");
 
     return (
         <AcademicYearSelector
-            years={years2}
+            years={academicYearOptions}
             value={selectedYear}
             onChange={setSelectedYear}
         />
