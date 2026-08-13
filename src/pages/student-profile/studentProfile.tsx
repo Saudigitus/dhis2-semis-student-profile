@@ -18,6 +18,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
 
+
     const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
 
     console.log(enrollmentFormFields, "enrollmentFormFields")
