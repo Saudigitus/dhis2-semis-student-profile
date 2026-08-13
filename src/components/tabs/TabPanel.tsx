@@ -227,9 +227,9 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                             >
                                 <Component
                                     loading={loading}
-                                    data={attributes}
-                                    columns={attributeColumns}
                                     pageSize={component?.details?.pageSize}
+                                    data={component?.type === "TEI_FORM" ? attributes : []}
+                                    columns={component?.type === "TEI_FORM" ? attributeColumns : []}
                                 />
                             </DetailCard>
                         )

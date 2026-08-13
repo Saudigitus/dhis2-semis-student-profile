@@ -76,6 +76,14 @@ const EventTable = (props: SimpleTableProps) => {
         )
     }
 
+     if (!data?.length) {
+        return (
+            <div className={styles.empty}>
+                {emptyMessage}
+            </div>
+        )
+    }
+
     return (
         <div className={styles.tableWrapper}>
             <div className={styles.table}>

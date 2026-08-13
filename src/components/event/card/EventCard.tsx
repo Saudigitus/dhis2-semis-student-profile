@@ -6,10 +6,11 @@ interface EventCardProps {
     data: any[],
     pageSize?: number,
     loading?: boolean,
+    emptyMessage?: string
 }
 
 const EventCard = (props: EventCardProps) => {
-    const { data, pageSize = 10, loading = false } = props;
+    const { data, pageSize = 10, loading = false, emptyMessage = "No events found" } = props;
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
     const currentEvents = data.slice((page - 1) * pageSize, page * pageSize)
@@ -17,6 +18,14 @@ const EventCard = (props: EventCardProps) => {
     if (loading) {
         return (
             <div className={styles.loading}>Loading...</div>
+        )
+    }
+
+    if (!data?.length) {
+        return (
+            <div className={styles.empty}>
+                {emptyMessage}
+            </div>
         )
     }
 
