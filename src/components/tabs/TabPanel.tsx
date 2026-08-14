@@ -232,6 +232,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                     loading={loading}
                                     programConfig={program}
                                     pageSize={component?.details?.pageSize}
+                                    title={component?.displayName ?? tab?.displayName}
                                     data={component?.type === "TEI_FORM" ?
                                         attributes :
                                         events?.[component?.details!?.programStage] || []

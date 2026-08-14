@@ -141,11 +141,7 @@ const EventTable = (props: EventTableProps) => {
                     </div>
 
                     <div className={styles.paginationActions}>
-                        <Button
-                            small
-                            disabled={page === 1}
-                            onClick={handlePrevious}
-                        >
+                        <Button small disabled={page === 1} onClick={handlePrevious}>
                             Previous
                         </Button>
 
@@ -153,11 +149,7 @@ const EventTable = (props: EventTableProps) => {
                             Page {page} of {pageCount}
                         </span>
 
-                        <Button
-                            small
-                            disabled={page === pageCount}
-                            onClick={handleNext}
-                        >
+                        <Button small disabled={page === pageCount} onClick={handleNext}>
                             Next
                         </Button>
                     </div>

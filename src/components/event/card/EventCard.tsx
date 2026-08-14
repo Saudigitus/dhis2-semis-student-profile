@@ -8,6 +8,7 @@ import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
 interface EventCardProps {
     i18n?: any,
     data?: any[],
+    title?: string
     loading?: boolean,
     emptyMessage?: string
     programConfig?: ProgramConfig
@@ -30,7 +31,7 @@ const getPageSize = (width: number) => {
 }
 
 const EventCard = (props: EventCardProps) => {
-    const { i18n, data, columns, loading = false, emptyMessage = "No events found", programConfig } = props;
+    const { i18n, data, columns, loading = false, emptyMessage = "No events found", title, programConfig } = props;
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(LARGE_PAGE_SIZE)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -124,7 +125,7 @@ const EventCard = (props: EventCardProps) => {
                         <ModalComponent
                             open={selectedEvent}
                             handleClose={() => setSelectedEvent(null)}
-                            title={`Event details (${data.indexOf(selectedEvent) + 1}/${data.length})`}
+                            title={`${(title || 'Event details')} (${data.indexOf(selectedEvent) + 1}/${data.length})`}
                         >
                             <div className={styles.details}>
                                 <div className={styles.modalCardHeader}>{cardHeader(selectedEvent)}</div>
