@@ -20,7 +20,7 @@ import {
     Block as IconDropout,
 } from "@mui/icons-material";
 import { D2I18n } from 'dhis2-semis-types';
-import type { ResolvedProfileFields } from '../../hooks/profile/useGetProfile';
+import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/useGetProfile';
 import styles from './ProfileDetail.module.css';
 
 type ProfileDetailProps = {
@@ -33,6 +33,24 @@ type ProfileDetailProps = {
     onMarkAsDropout?: () => void;
     onDeleteRecord?: () => void;
 };
+
+function BadgeTag({ badge, i18n }: { badge: ResolvedBadge; i18n: D2I18n }) {
+    console.log(badge, "badge")
+    const displayValue = badge.value ?? i18n.t('Not recorded');
+    const isPositive = badge.source === 'FINAL_RESULT_STATUS' ? badge.value : true;
+
+
+
+    return (
+        <Tag
+            neutral={false}
+            positive={isPositive}
+            negative={!isPositive}
+        >
+            {displayValue}
+        </Tag>
+    );
+}
 
 function MenuItem({
     children,
@@ -72,9 +90,10 @@ export default function ProfileDetail(props: ProfileDetailProps) {
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const moreMenuRef = React.useRef<HTMLDivElement | null>(null);
 
-    const fullName = fields?.fullName ?? i18n.t('Student Profile');
-    const systemId = fields?.systemId ?? '—';
-    const gender = fields?.gender ?? i18n.t('Not recorded');
+    const title = fields?.title ?? i18n.t('Student Profile');
+    const subtitle = fields?.subtitle ?? '—';
+    const photoUrl = fields?.photoUrl;
+    const badges = fields?.badges ?? [];
 
     if (loading) {
         return (
@@ -89,23 +108,19 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             <div className={styles.profileHeader}>
                 <div className={styles.profileInfo}>
                     <div className={styles.avatarContainer}>
-                        <IconUser sx={{ color: '#1E6194', fontSize: 28 }} />
+                        {photoUrl ? (
+                            <img src={photoUrl} alt={title} className={styles.photo} />
+                        ) : (
+                            <IconUser sx={{ color: '#1E6194', fontSize: 28 }} />
+                        )}
                     </div>
                     <div className={styles.studentDetails}>
-                        <h2 className={styles.studentName}>{fullName}</h2>
-                        <Label className={styles.studentId}>{systemId}</Label>
+                        <h2 className={styles.studentName}>{title}</h2>
+                        <Label className={styles.studentId}>{subtitle}</Label>
                         <div className={styles.tagsContainer}>
-                            <Tag neutral={false} positive={true}>
-                                ✔ {i18n.t('Enrolled')}
-                            </Tag>
-                            <Tag
-                                neutral={false}
-                                accent="teal"
-                                positive={false}
-                                negative={false}
-                            >
-                                {gender}
-                            </Tag>
+                            {badges.map((badge) => (
+                                <BadgeTag key={badge.order} badge={badge} i18n={i18n} />
+                            ))}
                         </div>
                     </div>
                 </div>
