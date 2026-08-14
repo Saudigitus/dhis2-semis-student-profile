@@ -24,7 +24,7 @@ export type ResolvedProfileFields = {
     trackedEntity?: string;
     title: string;
     subtitle: string;
-    photoUrl?: string;
+    photoAttributeId?: string;
     badges: ResolvedBadge[];
 };
 
@@ -130,8 +130,8 @@ export function resolveProfileFields(
         trackedEntity: fallback?.trackedEntity,
         title: resolveTextFromConfig(safeAttributes, identityCard?.title, fallback?.displayName),
         subtitle: resolveTextFromConfig(safeAttributes, identityCard?.subtitle, fallback?.trackedEntity),
-        photoUrl: getAttributeValue(safeAttributes, identityCard?.photo?.attribute),
-        badges: resolveBadges(safeAttributes, identityCard?.badges || [], finalResultStatus),
+        photoAttributeId: identityCard?.photo?.attribute,
+        badges: resolveBadges(safeAttributes, identityCard?.badges, finalResultStatus),
     };
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -20,6 +20,7 @@ import {
     Block as IconDropout,
 } from "@mui/icons-material";
 import { D2I18n } from 'dhis2-semis-types';
+import { useFileResource } from 'dhis2-semis-functions';
 import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/useGetProfile';
 import styles from './ProfileDetail.module.css';
 
@@ -27,6 +28,8 @@ type ProfileDetailProps = {
     i18n: D2I18n;
     loading?: boolean;
     fields?: Partial<ResolvedProfileFields>;
+    trackedEntity?: string;
+    program?: string;
     onEdit?: () => void;
     onPrintProfile?: () => void;
     onExportRecord?: () => void;
@@ -80,6 +83,8 @@ export default function ProfileDetail(props: ProfileDetailProps) {
         i18n,
         loading = false,
         fields,
+        trackedEntity,
+        program,
         onEdit,
         onPrintProfile,
         onExportRecord,
@@ -89,11 +94,34 @@ export default function ProfileDetail(props: ProfileDetailProps) {
 
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const moreMenuRef = React.useRef<HTMLDivElement | null>(null);
+    const [photoSrc, setPhotoSrc] = useState<string | null>(null);
+    const [photoLoading, setPhotoLoading] = useState<boolean>(false);
+    const { getFileResource } = useFileResource();
 
     const title = fields?.title ?? i18n.t('Student Profile');
     const subtitle = fields?.subtitle ?? '—';
-    const photoUrl = fields?.photoUrl;
+    const photoAttribute = fields?.photoAttributeId;
     const badges = fields?.badges ?? [];
+
+    useEffect(() => {
+        if (!trackedEntity || !photoAttribute || !program) return;
+
+        setPhotoLoading(true);
+        getFileResource({ trackedEntity, attribute: photoAttribute, program })
+            .then(({ file }) => {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setPhotoSrc(reader.result as string);
+                        setPhotoLoading(false);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    setPhotoLoading(false);
+                }
+            })
+            .catch(() => setPhotoLoading(false));
+    }, [trackedEntity, photoAttribute, program]);
 
     if (loading) {
         return (
@@ -108,8 +136,10 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             <div className={styles.profileHeader}>
                 <div className={styles.profileInfo}>
                     <div className={styles.avatarContainer}>
-                        {photoUrl ? (
-                            <img src={photoUrl} alt={title} className={styles.photo} />
+                        {photoLoading ? (
+                            <CircularLoader small />
+                        ) : photoSrc ? (
+                            <img src={photoSrc} alt={title} className={styles.photo} />
                         ) : (
                             <IconUser sx={{ color: '#1E6194', fontSize: 28 }} />
                         )}

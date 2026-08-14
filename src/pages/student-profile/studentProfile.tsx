@@ -12,7 +12,7 @@ import AcademicYearSelectorComponent from '../../components/chips';
 import styles from "./studentProfile.module.css";
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
-    const { loading, fields } = useGetProfile();
+    const { loading, fields, trackedEntity } = useGetProfile();
     const { dataStoreData, program } = useGetSelectedKeys();
     const { sectionName } = useGetSectionTypeLabel();
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
@@ -51,6 +51,8 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                     i18n={i18n}
                     loading={loading}
                     fields={fields}
+                    trackedEntity={trackedEntity}
+                    program={dataStoreData?.program}
                     onEdit={handleEdit}
                     onPrintProfile={handlePrintProfile}
                     onExportRecord={handleExportRecord}
