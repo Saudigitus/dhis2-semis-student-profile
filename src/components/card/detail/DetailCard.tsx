@@ -5,7 +5,7 @@ import { FunctionComponent, ReactNode } from "react";
 interface DetailCardProps {
     i18n?: D2I18n;
     title: string;
-    badge: string;
+    badge?: string;
     children: ReactNode;
     action?: {label: string, icon?: ReactNode, onClick?: () => void};
 }
@@ -19,7 +19,7 @@ const DetailCard: FunctionComponent<DetailCardProps> = (props) => {
             <div className={styles.header}>
                 <h3 className={styles.title}>{i18n.t(title)}</h3>
                 <div className={styles.headerRight}>
-                    <span className={styles.badge}>{i18n.t(badge)}</span>
+                    {badge && <span className={styles.badge}>{i18n.t(badge)}</span>}
                     {hasAction && (
                         <button
                             type="button"
