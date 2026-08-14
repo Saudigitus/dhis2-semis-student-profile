@@ -1,45 +1,42 @@
-import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@dhis2/ui'
-
 import styles from './table.module.css'
+import { useEffect, useMemo, useState } from 'react'
+import { getDisplayName } from 'dhis2-semis-components'
+import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
 
-interface TableColumn {
-    key: string
-    label: string
-    render?: (value: any, row: any) => React.ReactNode
-}
-
-interface SimpleTableProps {
+interface EventTableProps {
     data: any[]
-    columns?: TableColumn[]
     pageSize?: number
     loading?: boolean
     emptyMessage?: string
+    programConfig?: ProgramConfig
+    columns: CustomAttributeProps[]
 }
 
-const columnss = [
+const utilsColumns = [
     {
-        key: 'occurredAt',
-        label: 'Date',
+        id: 'occurredAt',
+        visible: true,
+        displayName: 'Date',
     },
     {
-        key: 'status',
-        label: 'Status',
+        id: 'status',
+        visible: true,
+        displayName: 'Status',
     },
     {
-        key: 'orgUnit',
-        label: 'Organisation Unit',
-    },
-    {
-        key: 'programStage',
-        label: 'Program Stage',
+        id: 'orgUnitName',
+        visible: true,
+        displayName: 'Organisation Unit',
     },
 ]
 
-const EventTable = (props: SimpleTableProps) => {
-    const { columns = columnss, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, } = props
+const EventTable = (props: EventTableProps) => {
+    const { columns, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, programConfig } = props
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
+
+    console.log(data)
 
     useEffect(() => {
         if (page > pageCount) {
@@ -55,9 +52,7 @@ const EventTable = (props: SimpleTableProps) => {
     }, [data, page, pageSize])
 
     const getValue = (row: any, key: string) => {
-        return key
-            ?.split('.')
-            ?.reduce((value, key) => value?.[key], row)
+        return getDisplayName({ metaData: key, value: row?.[key] || '', program: programConfig! })
     }
 
     const handlePrevious = () => {
@@ -76,7 +71,7 @@ const EventTable = (props: SimpleTableProps) => {
         )
     }
 
-     if (!data?.length) {
+    if (!data?.length) {
         return (
             <div className={styles.empty}>
                 {emptyMessage}
@@ -88,14 +83,18 @@ const EventTable = (props: SimpleTableProps) => {
         <div className={styles.tableWrapper}>
             <div className={styles.table}>
                 <div className={styles.headerRow}>
-                    {columns.map(column => (
-                        <div
-                            key={column.key}
-                            className={styles.headerCell}
-                        >
-                            {column.label}
-                        </div>
-                    ))}
+                    {utilsColumns
+                        ?.concat(columns)
+                        ?.filter(column => column.visible)
+                        .map(column => (
+                            <div
+                                key={column.id}
+                                className={styles.headerCell}
+                            >
+                                {column.displayName}
+                            </div>
+                        ))
+                    }
                 </div>
 
                 {currentData.length === 0 ? (
@@ -108,35 +107,22 @@ const EventTable = (props: SimpleTableProps) => {
                             key={row.event || rowIndex}
                             className={styles.row}
                         >
-                            {columns.map(column => {
-                                const value = getValue(
-                                    row,
-                                    column.key
-                                )
+                            {utilsColumns
+                                ?.concat(columns)
+                                ?.filter(column => column.visible)
+                                .map(column => {
+                                    const value = getValue(row, column.id)
+                                    const isEmpty = value === null || value === undefined || value === ''
 
-                                const isEmpty =
-                                    value === null ||
-                                    value === undefined ||
-                                    value === ''
-
-                                return (
-                                    <div
-                                        key={column.key}
-                                        className={
-                                            isEmpty
-                                                ? styles.cellNotRecorded
-                                                : styles.cell
-                                        }
-                                    >
-                                        {column.render
-                                            ? column.render(
-                                                value,
-                                                row
-                                            )
-                                            : value ?? 'Not recorded'}
-                                    </div>
-                                )
-                            })}
+                                    return (
+                                        <div
+                                            key={column.id}
+                                            className={isEmpty ? styles.cellNotRecorded : styles.cell}
+                                        >
+                                            {value ?? 'Not recorded'}
+                                        </div>
+                                    )
+                                })}
                         </div>
                     ))
                 )}
@@ -155,11 +141,7 @@ const EventTable = (props: SimpleTableProps) => {
                     </div>
 
                     <div className={styles.paginationActions}>
-                        <Button
-                            small
-                            disabled={page === 1}
-                            onClick={handlePrevious}
-                        >
+                        <Button small disabled={page === 1} onClick={handlePrevious}>
                             Previous
                         </Button>
 
@@ -167,11 +149,7 @@ const EventTable = (props: SimpleTableProps) => {
                             Page {page} of {pageCount}
                         </span>
 
-                        <Button
-                            small
-                            disabled={page === pageCount}
-                            onClick={handleNext}
-                        >
+                        <Button small disabled={page === pageCount} onClick={handleNext}>
                             Next
                         </Button>
                     </div>

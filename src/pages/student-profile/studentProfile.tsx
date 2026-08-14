@@ -12,13 +12,11 @@ import AcademicYearSelectorComponent from '../../components/chips';
 import styles from "./studentProfile.module.css";
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
-    const { loading, fields, attributes, trackedEntity } = useGetProfile();
+    const { loading, fields, attributes, events, trackedEntity } = useGetProfile();
     const { dataStoreData, program } = useGetSelectedKeys();
     const { sectionName } = useGetSectionTypeLabel();
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
-
-
     const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
 
     const handleEdit = useCallback(() => {
@@ -69,13 +67,9 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 <div style={{ marginBottom: "15px" }} />
                 <TabPanel
                     i18n={i18n}
+                    events={events}
                     loading={loading}
-                    attributes={attributes.map((item) => ({
-                        name: item?.attribute, value: item?.value
-                    })) || []}
-                    attributeColumns={enrollmentFormFields[0]?.fields?.map((item) => ({
-                        label: item?.displayName, value: item?.id || item?.name
-                    })) || []}
+                    attributes={attributes}
                 />
             </div>
 

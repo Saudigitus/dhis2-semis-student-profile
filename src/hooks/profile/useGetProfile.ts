@@ -6,6 +6,8 @@ import useGetSelectedKeys from '../config/useGetSelectedKeys';
 import { profileDetails } from '../../schema/profile/profile-details';
 import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
 import { SchoolCalendarData } from 'dhis2-semis-components';
+import { formatEnrollmentEvents } from '../../utils/profile/formatEnrollmentEvents';
+import { useOrgUnitName } from '../orgUnit/useOrgUnitName';
 
 type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
 type IdentityBadge = IdentityCard['badges'][number];
@@ -144,6 +146,8 @@ export function useGetProfile() {
     const [loading, setLoading] = useState<boolean>(false);
     const [profileDetailsState, setProfileDetails] = useRecoilState(profileDetails);
     const schoolCalendarData = useRecoilValue(SchoolCalendarData);
+    const { orgUnitNames, getOrgUnitNames, loading: orgUnitLoading, } = useOrgUnitName()
+
 
     const trackedEntity = location.pathname.split('/').filter(Boolean).pop();
 
@@ -186,6 +190,19 @@ export function useGetProfile() {
             if (teis?.[0]?.attributes) {
                 setProfileDetails(teis[0]);
             }
+
+            await getOrgUnitNames(
+                profileDetailsState?.enrollments?.map((enrollment: any) => enrollment.orgUnit)
+                    ?.filter(Boolean)
+                    ?.filter(
+                        (
+                            orgUnit: string,
+                            index: number,
+                            array: string[]
+                        ) => array.indexOf(orgUnit) === index
+                    ) || []
+                || []);
+
         } catch (error) {
             console.error('Error fetching student profile:', error);
         } finally {
@@ -207,6 +224,7 @@ export function useGetProfile() {
         trackedEntity,
         identityCard,
         attributes,
-        fields
+        fields,
+        events: formatEnrollmentEvents(profileDetailsState?.enrollments?.[0] || {}, orgUnitNames),
     };
 }

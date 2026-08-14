@@ -12,18 +12,18 @@
 }
 
 .label {
+    margin: 0;
     font-size: 14px;
     font-weight: 500;
     color: #64748b;
-    margin: 0;
-    flex-shrink: 0;
+    word-break: break-word;
 }
 
 .value {
+    margin: 0;
     font-size: 14px;
     font-weight: 600;
     color: #1e293b;
-    margin: 0;
     text-align: right;
     word-break: break-word;
 }
@@ -35,4 +35,22 @@
     font-style: italic;
     margin: 0;
     text-align: right;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 24px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+@media (max-width: 400px) {
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
 }

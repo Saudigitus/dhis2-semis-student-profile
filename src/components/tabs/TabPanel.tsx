@@ -10,188 +10,24 @@ import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
 import ListComponent from '../list/List';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import DetailCard from '../card/detail/DetailCard';
+import { useHeaders } from '../../hooks/useHeaders/useHeaders';
 
 interface TabPanelProps {
     i18n?: D2I18n;
-    loading?: boolean;
+    events?: any;
     attributes?: any
-    attributeColumns?: any
+    loading?: boolean;
 }
 
 function TabPanel(props: TabPanelProps): React.ReactElement {
-    const { i18n, loading, attributes, attributeColumns } = props
+    const { i18n, loading, attributes, events } = props
     const { add, useQuery } = useUrlParams()
     const selectedTab = useQuery.get('tab')
-    const { } = useGetSelectedKeys()
-
-    const helper = {
-        "identityCard": {
-            "badges": [
-                {
-                    "order": 0,
-                    "source": "FINAL_RESULT_STATUS",
-                    "styled": true
-                },
-                {
-                    "attribute": "X0vzx18XWqu",
-                    "order": 1,
-                    "source": "ATTRIBUTE",
-                    "styled": true
-                }
-            ],
-            "photo": {
-                "attribute": "cFYnzcqZyZ9"
-            },
-            "subtitle": {
-                "attributes": [
-                    "G0B8B0AH5Ek"
-                ],
-                "separator": " , "
-            },
-            "title": {
-                "attributes": [
-                    "gz8w04YBSS0",
-                    "ZIDlK6BaAU2"
-                ],
-                "separator": " , "
-            }
-        },
-        "program": "wQaiD2V27Dp",
-        "tabs": [
-            {
-                "color": "#1D5B79",
-                "components": [
-                    {
-                        "displayName": "Identity",
-                        "editable": true,
-                        "order": 0,
-                        "size": "w6",
-                        "type": "TEI_FORM"
-                    },
-                    {
-                        "details": {
-                            "pageSize": 1,
-                            "programStage": "Wi3KEZ7C3w9"
-                        },
-                        "displayName": "Socio-economic details",
-                        "editable": false,
-                        "order": 1,
-                        "size": "w6",
-                        "type": "EVENT_CARDS"
-                    }
-                ],
-                "createdAt": 1786521780352,
-                "displayName": "Personal details",
-                "id": "tab-1786521780352-ov1qk",
-                "order": 0
-            },
-            {
-                "color": "#468B97",
-                "components": [
-                    {
-                        "details": {
-                            "pageSize": 9,
-                            "programStage": "Ljyrr3cktAr"
-                        },
-                        "displayName": "Attendance history",
-                        "editable": false,
-                        "order": 0,
-                        "size": "w12",
-                        "type": "EVENT_TABLE"
-                    }
-                ],
-                "createdAt": 1786521780352,
-                "displayName": "Attendance",
-                "id": "tab-1786521780352-at3nc",
-                "order": 1
-            },
-            {
-                "color": "#468B97",
-                "components": [
-                    {
-                        "details": {
-                            "pageSize": 1,
-                            "programStage": "mBEhR2M4DRQ"
-                        },
-                        "displayName": "Term 1",
-                        "editable": true,
-                        "order": 0,
-                        "size": "w12",
-                        "type": "EVENT_CARDS"
-                    },
-                    {
-                        "details": {
-                            "pageSize": 1,
-                            "programStage": "mBEhR2M4DRQ"
-                        },
-                        "displayName": "Term 2",
-                        "editable": true,
-                        "order": 1,
-                        "size": "w12",
-                        "type": "EVENT_CARDS"
-                    },
-                    {
-                        "details": {
-                            "pageSize": 1,
-                            "programStage": "mBEhR2M4DRQ"
-                        },
-                        "displayName": "Term 3",
-                        "editable": true,
-                        "order": 2,
-                        "size": "w12",
-                        "type": "EVENT_CARDS"
-                    }
-                ],
-                "createdAt": 1786521780352,
-                "displayName": "Performance",
-                "id": "tab-1786521780352-pf2rm",
-                "order": 2
-            },
-            {
-                "color": "#468B97",
-                "components": [
-                    {
-                        "details": {
-                            "pageSize": 1,
-                            "programStage": "hcrjYJ6Yl5F"
-                        },
-                        "displayName": "Final result",
-                        "editable": true,
-                        "order": 0,
-                        "size": "w12",
-                        "type": "EVENT_CARDS"
-                    }
-                ],
-                "createdAt": 1786521780352,
-                "displayName": "Final results",
-                "id": "tab-1786521780352-fr4dl",
-                "order": 3
-            },
-            {
-                "color": "#468B97",
-                "components": [
-                    {
-                        "details": {
-                            "pageSize": 9,
-                            "programStage": "uewAr6TmLkw"
-                        },
-                        "displayName": "Transfers",
-                        "editable": false,
-                        "order": 0,
-                        "size": "w12",
-                        "type": "EVENT_TABLE"
-                    }
-                ],
-                "createdAt": 1786521780352,
-                "displayName": "Transfers",
-                "id": "tab-1786521780352-tr5wq",
-                "order": 4
-            }
-        ]
-    }
+    const { dataStoreData, program } = useGetSelectedKeys()
+    const { headers: eventHeaders } = useHeaders({ programConfigData: program!, dataStoreData: dataStoreData as any })
 
     useEffect(() => {
-        add('tab', helper?.tabs?.sort((a, b) => a.order - b.order)[0]?.id)
+        add('tab', [...(dataStoreData?.profile?.tabs || [])].sort((a, b) => a?.order - b?.order)?.[0]?.id)
     }, [])
 
     const componentsMapping: any = {
@@ -200,9 +36,10 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
         "EVENT_CARDS": EventCard,
     }
 
-    const tabsElements = helper?.tabs
-        ?.sort((a, b) => a.order - b.order)
-        ?.map((tab) => ({
+   const tabsElements = dataStoreData?.profile?.tabs
+    ? [...dataStoreData.profile.tabs]
+        .sort((a, b) => a?.order - b?.order)
+        .map((tab) => ({
             value: tab?.id,
             name: tab?.displayName,
             component: <div
@@ -226,16 +63,22 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                 action={component?.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
                             >
                                 <Component
+                                    i18n={i18n}
                                     loading={loading}
+                                    programConfig={program}
                                     pageSize={component?.details?.pageSize}
-                                    data={component?.type === "TEI_FORM" ? attributes : []}
-                                    columns={component?.type === "TEI_FORM" ? attributeColumns : []}
+                                    title={component?.displayName ?? tab?.displayName}
+                                    data={component?.type === "TEI_FORM" ?
+                                        attributes :
+                                        events?.[component?.details!?.programStage] || []
+                                    }
+                                    columns={eventHeaders?.[component?.details!?.programStage] || []}
                                 />
                             </DetailCard>
                         )
                     })}
             </div>
-        }))
+        })) : []
 
     return (
         <Paper >
