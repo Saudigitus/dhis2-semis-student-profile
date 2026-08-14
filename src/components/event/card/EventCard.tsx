@@ -43,15 +43,15 @@ const EventCard = (props: EventCardProps) => {
         <div className={styles.container}>
             <div className={styles.cards}>
                 {currentEvents.map(event => (
-                    <div key={event.event} className={styles.card}>
+                    <div key={event?.event} className={styles.card}>
                         <div className={styles.cardHeader}>
                             <div>
                                 <div className={styles.stage}>Occurred at</div>
-                                <div className={styles.date}>{formatDate(event.occurredAt)}</div>
+                                <div className={styles.date}>{formatDate(event?.occurredAt)}</div>
                             </div>
 
-                            <div className={`${styles.status} ${event.status === 'COMPLETED' ? styles.completed : styles.active}`}>
-                                {event.status}
+                            <div className={`${styles.status} ${event?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
+                                {event?.status}
                             </div>
                         </div>
 
@@ -60,12 +60,12 @@ const EventCard = (props: EventCardProps) => {
                         <div className={styles.content}>
                             <div className={styles.row}>
                                 <span className={styles.label}>Organisation unit</span>
-                                <span className={styles.value}>{event.orgUnit}</span>
+                                <span className={styles.value}>{event?.orgUnitName || event?.orgUnit}</span>
                             </div>
 
                             {/* <div className={styles.row}>
                                 <span className={styles.label}>Event</span>
-                                <span className={styles.value}>{event.event}</span>
+                                <span className={styles.value}>{event?.event}</span>
                             </div> */}
                         </div>
 

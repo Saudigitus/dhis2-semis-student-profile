@@ -27,13 +27,14 @@ interface FormattedEvent {
     scheduledAt?: string
     status?: string
     orgUnit?: string
+    orgUnitName?: string
     programStage: string
     dataValues: EnrollmentDataValue[]
 }
 
 type FormattedEvents = Record<string, FormattedEvent[]>
 
-export const formatEnrollmentEvents = (enrollment?: Enrollment): FormattedEvents => {
+export const formatEnrollmentEvents = (enrollment?: Enrollment, orgUnits?: any[]): FormattedEvents => {
     if (!enrollment?.events?.length) {
         return {}
     }
@@ -57,6 +58,7 @@ export const formatEnrollmentEvents = (enrollment?: Enrollment): FormattedEvents
                 status: event?.status,
                 orgUnit: event?.orgUnit || enrollment.orgUnit,
                 programStage,
+                orgUnitName: orgUnits?.find((orgUnit: any) => orgUnit.id === event.orgUnit)?.displayName || '',
                 dataValues: event?.dataValues || [],
                 ...(event?.dataValues?.reduce(
                     (acc, dataValue) => ({

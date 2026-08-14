@@ -25,7 +25,7 @@ const utilsColumns = [
         displayName: 'Status',
     },
     {
-        id: 'orgUnit',
+        id: 'orgUnitName',
         visible: true,
         displayName: 'Organisation Unit',
     },
