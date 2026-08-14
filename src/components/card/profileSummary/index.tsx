@@ -1,8 +1,16 @@
-import React from 'react'
-import ProfileSummaryCard from './ProfileSummaryCard';
-import { useGetAttributes, useGetProgramIndicators } from 'dhis2-semis-functions';
-import { useEnrollmentAnalytics } from '../../../hooks/analytics';
-import useGetSelectedKeys from '../../../hooks/config/useGetSelectedKeys';
+import React, { useMemo } from "react";
+import ProfileSummaryCard from "./ProfileSummaryCard";
+import {
+    useGetAttributes,
+    useGetProgramIndicators,
+    useUrlParams,
+} from "dhis2-semis-functions";
+import { useEnrollmentAnalytics } from "../../../hooks/analytics";
+import useGetSelectedKeys from "../../../hooks/config/useGetSelectedKeys";
+import { useRecoilValue } from "recoil";
+import { SchoolCalendarData } from "dhis2-semis-components";
+import { academicYearPeriod } from "../../../utils/academicYearPeriod/getAcademicYearPeriod";
+import { Center, CircularLoader } from "@dhis2/ui";
 
 type AttributeItem = {
     id: string;
@@ -12,63 +20,208 @@ type AttributeItem = {
     [key: string]: any;
 };
 
-function getUniqueRequiredAttributes(attributes: AttributeItem[]): AttributeItem[] {
-    return attributes.filter((attr) => attr.unique === true && attr.required === true);
+function getUniqueRequiredAttributes(
+    attributes: AttributeItem[]
+): AttributeItem[] {
+    return attributes.filter(
+        (attr) =>
+            attr.unique === true &&
+            attr.required === true
+    );
 }
 
-const SumarryCardComponent = ({ attributeValues }: { attributeValues: any }) => {
+const SumarryCardComponent = ({
+    attributeValues,
+}: {
+    attributeValues: any;
+}) => {
     const { program } = useGetSelectedKeys();
-    const programId = program?.id;
 
-    const { attributes } = useGetAttributes({ programData: program as any });
+    const academicYearDataStore: any =
+        useRecoilValue(SchoolCalendarData);
 
-    const uniqueRequiredAttrs = getUniqueRequiredAttributes(attributes ?? []);
+    const { useQuery } = useUrlParams();
 
-    function getAttributeValue() {
-        //uniqueRequiredAttrs and attributeValues
-        const uniqueRequiredAttributesValues: AttributeItem[] = [];
-        uniqueRequiredAttrs?.map((attributeValue: AttributeItem) => {
-            const attribute = attributeValues?.find((attribute: AttributeItem) => attribute.attribute === attributeValue.id);
-            if (attribute) {
-                uniqueRequiredAttributesValues.push([`${attribute.attribute}:IEQ:${attribute.value}`]);
-            }
-        });
-        return uniqueRequiredAttributesValues;
-    }
+    const academicYearFromUrl =
+        useQuery.get("academicYear");
 
-    const { programIndicators, loading: loadingIndicators } = useGetProgramIndicators({
-        programId: programId ?? '',
+    const programId = program?.id ?? "";
+
+    const { attributes } = useGetAttributes({
+        programData: program as any,
+    });
+
+    const uniqueRequiredAttrs = useMemo(
+        () =>
+            getUniqueRequiredAttributes(
+                attributes ?? []
+            ),
+        [attributes]
+    );
+
+    const academicPeriod = useMemo(() => {
+        if (
+            !academicYearFromUrl ||
+            !academicYearDataStore
+        ) {
+            return undefined;
+        }
+
+        return academicYearPeriod(
+            academicYearFromUrl,
+            academicYearDataStore
+        );
+    }, [
+        academicYearFromUrl,
+        academicYearDataStore,
+    ]);
+
+    const enrollmentDate = useMemo(() => {
+        if (
+            !academicPeriod?.startDate ||
+            !academicPeriod?.endDate
+        ) {
+            return "LAST_5_YEARS";
+        }
+
+        return `${academicPeriod.startDate}_${academicPeriod.endDate}`;
+    }, [academicPeriod]);
+
+    const {
+        programIndicators,
+        loading: loadingIndicators,
+    } = useGetProgramIndicators({
+        programId,
         paging: false,
     });
 
-    const indicatorIds = programIndicators.map((indicator) => indicator.id);
+    const indicatorIds = useMemo(
+        () =>
+            programIndicators.map(
+                (indicator) => indicator.id
+            ),
+        [programIndicators]
+    );
 
-    const { rows, loading: loadingAnalytics } = useEnrollmentAnalytics({
-        programId: programId ?? '',
+    const filters = useMemo(() => {
+        return uniqueRequiredAttrs.reduce(
+            (result: string[], attribute) => {
+                const value =
+                    attributeValues?.find(
+                        (item: AttributeItem) =>
+                            item.attribute ===
+                            attribute.id
+                    );
+
+                if (value) {
+                    result.push(
+                        `${value.attribute}:IEQ:${value.value}`
+                    );
+                }
+
+                return result;
+            },
+            []
+        );
+    }, [
+        uniqueRequiredAttrs,
+        attributeValues,
+    ]);
+
+    const {
+        rows,
+        headers,
+        loading: loadingAnalytics,
+        error,
+        refetch,
+    } = useEnrollmentAnalytics({
+        programId,
         indicators: indicatorIds,
-        filters: getAttributeValue() as any,
+        filters,
+        enrollmentDate,
     });
 
-    const loading = loadingIndicators || loadingAnalytics;
+    /**
+     * Transforma:
+     *
+     * [
+     *   ["Albion LBS", "43", "59", "..."]
+     * ]
+     *
+     * em:
+     *
+     * {
+     *   ouname: "Albion LBS",
+     *   rsFMbajPSZO: "43",
+     *   Ij2MYNsPU3S: "59"
+     * }
+     */
+    const latestRow = useMemo(() => {
+        const row = rows?.[0];
+
+        if (!row || !headers.length) {
+            return {};
+        }
+
+        return headers.reduce(
+            (
+                result: Record<string, any>,
+                header,
+                index
+            ) => {
+                result[header.name] = row[index];
+
+                return result;
+            },
+            {}
+        );
+    }, [headers, rows]);
+
+    const loading =
+        loadingIndicators ||
+        loadingAnalytics;
 
     if (loading) {
-        return null;
+        return (
+            <Center>
+                <CircularLoader small />
+            </Center>
+        );
     }
 
-    const latestRow = rows[0] ?? {};
+    if (error) {
+        return (
+            <div>
+                Error loading analytics
+            </div>
+        );
+    }
 
     return (
-        <div style={{ display: "flex", gap: "16px" }}>
-            {programIndicators.map((indicator) => (
-                <ProfileSummaryCard
-                    key={indicator.id}
-                    value={latestRow[indicator.id] ?? ''}
-                    label={indicator.displayName}
-                    variant="info"
-                />
-            ))}
+        <div
+            style={{
+                display: "flex",
+                gap: "16px",
+            }}
+        >
+            {programIndicators.map(
+                (indicator) => (
+                    <ProfileSummaryCard
+                        key={indicator.id}
+                        value={
+                            latestRow[
+                            indicator.id
+                            ] ?? "N/A"
+                        }
+                        label={
+                            indicator.displayName
+                        }
+                        variant="info"
+                    />
+                )
+            )}
         </div>
-    )
-}
+    );
+};
 
-export default SumarryCardComponent
+export default SumarryCardComponent;
