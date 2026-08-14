@@ -36,3 +36,13 @@
     margin: 0;
     text-align: right;
 }
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    padding: 24px;
+    font-size: 14px;
+    color: #64748b;
+}

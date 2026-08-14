@@ -6,6 +6,7 @@ import useGetSelectedKeys from '../config/useGetSelectedKeys';
 import { profileDetails } from '../../schema/profile/profile-details';
 import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
 import { SchoolCalendarData } from 'dhis2-semis-components';
+import { formatEnrollmentEvents } from '../../utils/profile/formatEnrollmentEvents';
 
 type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
 type IdentityBadge = IdentityCard['badges'][number];
@@ -208,5 +209,6 @@ export function useGetProfile() {
         identityCard,
         attributes,
         fields,
+        events: formatEnrollmentEvents(profileDetailsState?.enrollments?.[0] || {}),
     };
 }

@@ -1,45 +1,45 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@dhis2/ui'
-
 import styles from './table.module.css'
-
-interface TableColumn {
-    key: string
-    label: string
-    render?: (value: any, row: any) => React.ReactNode
-}
+import { CustomAttributeProps } from 'dhis2-semis-types'
 
 interface SimpleTableProps {
     data: any[]
-    columns?: TableColumn[]
     pageSize?: number
     loading?: boolean
     emptyMessage?: string
+    columns: CustomAttributeProps[]
 }
 
-const columnss = [
+const utilsColumns = [
     {
-        key: 'occurredAt',
-        label: 'Date',
+        id: 'occurredAt',
+        visible: true,
+        displayName: 'Date',
     },
     {
-        key: 'status',
-        label: 'Status',
+        id: 'status',
+        visible: true,
+        displayName: 'Status',
     },
     {
-        key: 'orgUnit',
-        label: 'Organisation Unit',
+        id: 'orgUnit',
+        visible: true,
+        displayName: 'Organisation Unit',
     },
-    {
-        key: 'programStage',
-        label: 'Program Stage',
-    },
+    // {
+    //     id: 'programStage',
+    //     visible: true,
+    //     displayName: 'Program Stage',
+    // },
 ]
 
 const EventTable = (props: SimpleTableProps) => {
-    const { columns = columnss, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, } = props
+    const { columns, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, } = props
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
+
+    console.log(data)
 
     useEffect(() => {
         if (page > pageCount) {
@@ -55,9 +55,8 @@ const EventTable = (props: SimpleTableProps) => {
     }, [data, page, pageSize])
 
     const getValue = (row: any, key: string) => {
-        return key
-            ?.split('.')
-            ?.reduce((value, key) => value?.[key], row)
+        console.log(row, key)
+        return row?.[key] || ''
     }
 
     const handlePrevious = () => {
@@ -76,7 +75,7 @@ const EventTable = (props: SimpleTableProps) => {
         )
     }
 
-     if (!data?.length) {
+    if (!data?.length) {
         return (
             <div className={styles.empty}>
                 {emptyMessage}
@@ -88,14 +87,18 @@ const EventTable = (props: SimpleTableProps) => {
         <div className={styles.tableWrapper}>
             <div className={styles.table}>
                 <div className={styles.headerRow}>
-                    {columns.map(column => (
-                        <div
-                            key={column.key}
-                            className={styles.headerCell}
-                        >
-                            {column.label}
-                        </div>
-                    ))}
+                    {utilsColumns
+                        ?.concat(columns)
+                        ?.filter(column => column.visible)
+                        .map(column => (
+                            <div
+                                key={column.id}
+                                className={styles.headerCell}
+                            >
+                                {column.displayName}
+                            </div>
+                        ))
+                    }
                 </div>
 
                 {currentData.length === 0 ? (
@@ -108,35 +111,22 @@ const EventTable = (props: SimpleTableProps) => {
                             key={row.event || rowIndex}
                             className={styles.row}
                         >
-                            {columns.map(column => {
-                                const value = getValue(
-                                    row,
-                                    column.key
-                                )
+                            {utilsColumns
+                                ?.concat(columns)
+                                ?.filter(column => column.visible)
+                                .map(column => {
+                                    const value = getValue(row, column.id)
+                                    const isEmpty = value === null || value === undefined || value === ''
 
-                                const isEmpty =
-                                    value === null ||
-                                    value === undefined ||
-                                    value === ''
-
-                                return (
-                                    <div
-                                        key={column.key}
-                                        className={
-                                            isEmpty
-                                                ? styles.cellNotRecorded
-                                                : styles.cell
-                                        }
-                                    >
-                                        {column.render
-                                            ? column.render(
-                                                value,
-                                                row
-                                            )
-                                            : value ?? 'Not recorded'}
-                                    </div>
-                                )
-                            })}
+                                    return (
+                                        <div
+                                            key={column.id}
+                                            className={isEmpty ? styles.cellNotRecorded : styles.cell}
+                                        >
+                                            {value ?? 'Not recorded'}
+                                        </div>
+                                    )
+                                })}
                         </div>
                     ))
                 )}

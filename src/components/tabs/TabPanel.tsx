@@ -13,16 +13,17 @@ import DetailCard from '../card/detail/DetailCard';
 
 interface TabPanelProps {
     i18n?: D2I18n;
-    loading?: boolean;
     attributes?: any
-    attributeColumns?: any
+    loading?: boolean;
+    events?: any;
+    eventHeaders?: any;
 }
 
 function TabPanel(props: TabPanelProps): React.ReactElement {
-    const { i18n, loading, attributes, attributeColumns } = props
+    const { i18n, loading, attributes, events, eventHeaders } = props
     const { add, useQuery } = useUrlParams()
     const selectedTab = useQuery.get('tab')
-    const { } = useGetSelectedKeys()
+    const { dataStoreData } = useGetSelectedKeys()
 
     const helper = {
         "identityCard": {
@@ -228,8 +229,11 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                 <Component
                                     loading={loading}
                                     pageSize={component?.details?.pageSize}
-                                    data={component?.type === "TEI_FORM" ? attributes : []}
-                                    columns={component?.type === "TEI_FORM" ? attributeColumns : []}
+                                    data={component?.type === "TEI_FORM" ?
+                                        attributes :
+                                        events?.[component?.details!?.programStage] || []
+                                    }
+                                    columns={eventHeaders?.[component?.details!?.programStage] || []}
                                 />
                             </DetailCard>
                         )

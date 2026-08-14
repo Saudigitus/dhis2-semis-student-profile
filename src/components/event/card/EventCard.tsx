@@ -3,7 +3,7 @@ import { Button } from '@dhis2/ui'
 import styles from './card.module.css'
 
 interface EventCardProps {
-    data: any[],
+    data?: any[],
     pageSize?: number,
     loading?: boolean,
     emptyMessage?: string
@@ -12,8 +12,8 @@ interface EventCardProps {
 const EventCard = (props: EventCardProps) => {
     const { data, pageSize = 10, loading = false, emptyMessage = "No events found" } = props;
     const [page, setPage] = useState(1)
-    const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
-    const currentEvents = data.slice((page - 1) * pageSize, page * pageSize)
+    const pageCount = Math.max(1, Math.ceil(data?.length || 0 / pageSize))
+    const currentEvents = data?.slice((page - 1) * pageSize, page * pageSize) || []             
 
     if (loading) {
         return (

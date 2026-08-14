@@ -4,19 +4,22 @@ import { D2I18n } from "dhis2-semis-types";
 
 interface ListProps {
     i18n: D2I18n;
+    loading?: string;
     data: {
-        name: string;
+        displayName: string;
         value?: string;
-    }[];
-    columns: {
-        label: string;
-        value: string;
     }[];
     notRecorded?: string;
 }
 
 const ListComponent: FunctionComponent<ListProps> = (props) => {
-    const { i18n, data, columns, notRecorded = "Not recorded", } = props;
+    const { i18n, data, notRecorded = "Not recorded", loading } = props;
+
+    if (loading) {
+        return (
+            <div className={styles.loading}>Loading...</div>
+        )
+    }
 
     return (
         <>
@@ -25,7 +28,7 @@ const ListComponent: FunctionComponent<ListProps> = (props) => {
 
                 return (
                     <div key={item.value} className={styles.row}>
-                        <p className={styles.label}>{columns?.find((col) => col?.value === item.name)?.label}</p>
+                        <p className={styles.label}>{item.displayName}</p>
                         <p className={isNotRecorded ? styles.valueNotRecorded : styles.value}>
                             {isNotRecorded ? i18n.t(notRecorded) : item.value}
                         </p>
