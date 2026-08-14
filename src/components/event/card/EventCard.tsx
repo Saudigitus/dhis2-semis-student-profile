@@ -1,13 +1,17 @@
-import { useState, useEffect, useRef } from 'react'
 import { Button } from '@dhis2/ui'
 import styles from './card.module.css'
-import { ProgramConfig } from 'dhis2-semis-types'
+import { useState, useEffect, useRef } from 'react'
+import { ModalComponent } from 'dhis2-semis-components'
+import ListComponent from '../../../components/list/List'
+import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
 
 interface EventCardProps {
+    i18n?: any,
     data?: any[],
     loading?: boolean,
     emptyMessage?: string
     programConfig?: ProgramConfig
+    columns: CustomAttributeProps[]
 }
 
 // Breakpoints que definem o número de colunas (4 / 2 / 1).
@@ -26,10 +30,11 @@ const getPageSize = (width: number) => {
 }
 
 const EventCard = (props: EventCardProps) => {
-    const { data, loading = false, emptyMessage = "No events found", programConfig } = props;
+    const { i18n, data, columns, loading = false, emptyMessage = "No events found", programConfig } = props;
     const [page, setPage] = useState(1)
     const [pageSize, setPageSize] = useState(LARGE_PAGE_SIZE)
     const containerRef = useRef<HTMLDivElement>(null)
+    const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
     // Observa a largura do container e ajusta o pageSize (1, 2 ou 4)
     // para acompanhar o número de colunas definido no CSS.
@@ -69,6 +74,19 @@ const EventCard = (props: EventCardProps) => {
         setPage(Math.min(Math.max(target, 1), pageCount))
     }
 
+    const cardHeader = (event: any) => (
+        <div className={styles.cardHeader}>
+            <div>
+                <div className={styles.stage}>Occurred at</div>
+                <div className={styles.date}>{formatDate(event?.occurredAt)}</div>
+            </div>
+
+            <div className={`${styles.status} ${event?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
+                {event?.status}
+            </div>
+        </div>
+    )
+
     return (
         <div className={styles.container} ref={containerRef}>
             {loading ? (
@@ -85,17 +103,7 @@ const EventCard = (props: EventCardProps) => {
                                 key={event?.event}
                                 className={`${styles.card} ${total === 1 ? styles.full : ''}`}
                             >
-                                <div className={styles.cardHeader}>
-                                    <div>
-                                        <div className={styles.stage}>Occurred at</div>
-                                        <div className={styles.date}>{formatDate(event?.occurredAt)}</div>
-                                    </div>
-
-                                    <div className={`${styles.status} ${event?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
-                                        {event?.status}
-                                    </div>
-                                </div>
-
+                                {cardHeader(event)}
                                 <div className={styles.divider} />
 
                                 <div className={styles.content}>
@@ -106,11 +114,40 @@ const EventCard = (props: EventCardProps) => {
                                 </div>
 
                                 <div className={styles.cardFooter}>
-                                    <Button small secondary>Details</Button>
+                                    <Button small secondary onClick={() => setSelectedEvent(event)}>Details</Button>
                                 </div>
                             </div>
                         ))}
                     </div>
+
+                    {selectedEvent &&
+                        <ModalComponent
+                            open={selectedEvent}
+                            handleClose={() => setSelectedEvent(null)}
+                            title={`Event details (${data.indexOf(selectedEvent) + 1}/${data.length})`}
+                        >
+                            <div className={styles.details}>
+                                <div className={styles.modalCardHeader}>{cardHeader(selectedEvent)}</div>
+                                <ListComponent
+                                    i18n={i18n}
+                                    data={selectedEvent?.dataValues?.map((item: any) => ({
+                                        value: item.value,
+                                        displayName: columns.find(col => col.id === item.dataElement)?.name || columns.find(col => col.id === item.attribute)?.name || item.dataElementName,
+                                    })) || []}
+                                />
+
+                                {data?.length > 1 && (<div className={styles.cardFooter}>
+                                    <Button small secondary onClick={() => setSelectedEvent(
+                                        data[data.indexOf(selectedEvent) - 1] || null
+                                    )}>Previous</Button>
+                                    <Button small secondary onClick={() => setSelectedEvent(
+                                        data[data.indexOf(selectedEvent) + 1] || null
+                                    )}>Next</Button>
+                                </div>)}
+                            </div>
+
+                        </ModalComponent>
+                    }
 
                     {total > 0 && (
                         <div className={styles.pagination}>
@@ -122,11 +159,7 @@ const EventCard = (props: EventCardProps) => {
                             </span>
 
                             <div className={styles.paginationActions}>
-                                <Button
-                                    small
-                                    disabled={page === 1}
-                                    onClick={() => goToPage(page - 1)}
-                                >
+                                <Button small disabled={page === 1} onClick={() => goToPage(page - 1)}>
                                     Previous
                                 </Button>
 
@@ -134,11 +167,7 @@ const EventCard = (props: EventCardProps) => {
                                     Page {page} of {pageCount}
                                 </span>
 
-                                <Button
-                                    small
-                                    disabled={page === pageCount}
-                                    onClick={() => goToPage(page + 1)}
-                                >
+                                <Button small disabled={page === pageCount} onClick={() => goToPage(page + 1)}>
                                     Next
                                 </Button>
                             </div>

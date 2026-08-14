@@ -202,8 +202,6 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
         "EVENT_CARDS": EventCard,
     }
 
-    console.log(attributes)
-
     const tabsElements = helper?.tabs
         ?.sort((a, b) => a.order - b.order)
         ?.map((tab) => ({
@@ -230,6 +228,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                 action={component?.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
                             >
                                 <Component
+                                    i18n={i18n}
                                     loading={loading}
                                     programConfig={program}
                                     pageSize={component?.details?.pageSize}

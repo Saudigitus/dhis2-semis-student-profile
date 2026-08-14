@@ -158,7 +158,18 @@
     word-break: break-word;
 }
 
+.modalCardHeader {
+    padding: 6px 16px;
+    background: #fafbfc;
+    border: 1px solid #f0f2f5 !important;
+}
+
+.modalCardHeader * {
+    padding: 0;
+}
+
 .cardFooter {
+    gap: 5px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -216,6 +227,11 @@
     padding: 24px;
     font-size: 14px;
     color: var(--color-text-secondary);
+}
+
+.details {
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
 }
 
 @container (max-width: 699px) {
