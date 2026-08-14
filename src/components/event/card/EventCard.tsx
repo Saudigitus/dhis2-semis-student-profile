@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { Button } from '@dhis2/ui'
 import styles from './card.module.css'
+import { ProgramConfig } from 'dhis2-semis-types'
 
 interface EventCardProps {
     data?: any[],
     pageSize?: number,
     loading?: boolean,
     emptyMessage?: string
+    programConfig?: ProgramConfig
 }
 
 const EventCard = (props: EventCardProps) => {
-    const { data, pageSize = 10, loading = false, emptyMessage = "No events found" } = props;
+    const { data, pageSize = 10, loading = false, emptyMessage = "No events found", programConfig } = props;
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data?.length || 0 / pageSize))
     const currentEvents = data?.slice((page - 1) * pageSize, page * pageSize) || []             

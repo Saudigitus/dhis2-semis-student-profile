@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@dhis2/ui'
 import styles from './table.module.css'
-import { CustomAttributeProps } from 'dhis2-semis-types'
+import { useEffect, useMemo, useState } from 'react'
+import { getDisplayName } from 'dhis2-semis-components'
+import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
 
-interface SimpleTableProps {
+interface EventTableProps {
     data: any[]
     pageSize?: number
     loading?: boolean
     emptyMessage?: string
+    programConfig?: ProgramConfig
     columns: CustomAttributeProps[]
 }
 
@@ -27,15 +29,10 @@ const utilsColumns = [
         visible: true,
         displayName: 'Organisation Unit',
     },
-    // {
-    //     id: 'programStage',
-    //     visible: true,
-    //     displayName: 'Program Stage',
-    // },
 ]
 
-const EventTable = (props: SimpleTableProps) => {
-    const { columns, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, } = props
+const EventTable = (props: EventTableProps) => {
+    const { columns, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, programConfig } = props
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
 
@@ -55,8 +52,7 @@ const EventTable = (props: SimpleTableProps) => {
     }, [data, page, pageSize])
 
     const getValue = (row: any, key: string) => {
-        console.log(row, key)
-        return row?.[key] || ''
+        return getDisplayName({ metaData: key, value: row?.[key] || '', program: programConfig! })
     }
 
     const handlePrevious = () => {

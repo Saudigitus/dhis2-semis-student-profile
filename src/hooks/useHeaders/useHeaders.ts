@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
+import { formatVariables } from "dhis2-semis-functions"
 import { CustomAttributeProps, DataStoreProps, ProgramConfig, VariablesTypes } from "dhis2-semis-types"
-import { formatHeaders } from "../../../../../libs/functions/src/utils/table/header/formatHeaders"
-import { formatVariables } from "../../../../../libs/functions/src/utils/table/header/formatVariables"
 
 interface UseHeaderProps {
     programConfigData: ProgramConfig
@@ -10,7 +9,7 @@ interface UseHeaderProps {
 
 type Headers = Record<string, CustomAttributeProps[]>
 
-export function useHeader({ programConfigData, dataStoreData }: UseHeaderProps) {
+export function useHeaders({ programConfigData, dataStoreData }: UseHeaderProps) {
     const [headers, setHeaders] = useState<Headers>({})
 
     const getHeaders = () => {
@@ -18,9 +17,13 @@ export function useHeader({ programConfigData, dataStoreData }: UseHeaderProps) 
             return {}
         }
 
-        return programConfigData.programStages.reduce(
+        return programConfigData?.programStages?.reduce(
             (acc, programStage) => {
-                acc[programStage.id] = formatVariables({ variables: programStage?.programStageDataElements || [], type: VariablesTypes.DataElement }) as []
+                acc[programStage.id] = formatVariables({
+                    type: VariablesTypes.DataElement,
+                    variables: programStage?.programStageDataElements || [] as unknown as any[],
+                }
+                ) as []
                 return acc
             },
             {} as Headers

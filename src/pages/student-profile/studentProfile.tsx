@@ -10,7 +10,6 @@ import { profileFormFields } from '../../utils/constants/form/profileForm';
 import SumarryCardComponent from '../../components/card/profileSummary';
 import AcademicYearSelectorComponent from '../../components/chips';
 import styles from "./studentProfile.module.css";
-import { useHeader } from '../../hooks/useHeader/useHeader';
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
     const { loading, fields, attributes, events } = useGetProfile();
@@ -19,7 +18,6 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
     const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
-    const { headers } = useHeader({ programConfigData: program, dataStoreData });
 
     const handleEdit = useCallback(() => {
         setOpenEditModal(true);
@@ -65,10 +63,9 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 <div style={{ marginBottom: "15px" }} />
                 <TabPanel
                     i18n={i18n}
+                    events={events}
                     loading={loading}
                     attributes={attributes}
-                    events={events}
-                    eventHeaders={headers}
                 />
             </div>
 

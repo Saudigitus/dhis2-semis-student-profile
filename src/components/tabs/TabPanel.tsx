@@ -10,20 +10,21 @@ import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
 import ListComponent from '../list/List';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import DetailCard from '../card/detail/DetailCard';
+import { useHeaders } from '../../hooks/useHeaders/useHeaders';
 
 interface TabPanelProps {
     i18n?: D2I18n;
+    events?: any;
     attributes?: any
     loading?: boolean;
-    events?: any;
-    eventHeaders?: any;
 }
 
 function TabPanel(props: TabPanelProps): React.ReactElement {
-    const { i18n, loading, attributes, events, eventHeaders } = props
+    const { i18n, loading, attributes, events } = props
     const { add, useQuery } = useUrlParams()
     const selectedTab = useQuery.get('tab')
-    const { dataStoreData } = useGetSelectedKeys()
+    const { dataStoreData, program } = useGetSelectedKeys()
+    const { headers: eventHeaders } = useHeaders({ programConfigData: program!, dataStoreData: dataStoreData as any })
 
     const helper = {
         "identityCard": {
@@ -228,6 +229,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                             >
                                 <Component
                                     loading={loading}
+                                    programConfig={program}
                                     pageSize={component?.details?.pageSize}
                                     data={component?.type === "TEI_FORM" ?
                                         attributes :
