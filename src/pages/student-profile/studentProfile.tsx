@@ -42,6 +42,8 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
         console.log('[StudentProfile] Delete record requested');
     }, []);
 
+    console.log(fields, "fields")
+
     return (
         <div className={styles.wrapper}>
             <div>
@@ -61,7 +63,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
             <div>
                 <AcademicYearSelectorComponent />
                 <div style={{ marginBottom: "15px" }} />
-                <SumarryCardComponent />
+                <SumarryCardComponent attributeValues={attributes} />
                 <div style={{ marginBottom: "15px" }} />
                 <TabPanel
                     i18n={i18n}

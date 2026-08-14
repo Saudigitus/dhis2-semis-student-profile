@@ -20,7 +20,8 @@ interface ModalManagerInterface {
     setOpen: (arg: boolean) => void;
     initialValues?: Record<string, any>
     setFormInitialValues?: (arg: Record<string, any>) => void;
-    i18n: D2I18n
+    i18n: D2I18n,
+    finalDecision?: object | null
 }
 
 export type { ModalContentInterface, ModalManagerInterface }
