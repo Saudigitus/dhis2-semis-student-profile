@@ -15,7 +15,7 @@ const EventCard = (props: EventCardProps) => {
     const { data, pageSize = 10, loading = false, emptyMessage = "No events found", programConfig } = props;
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data?.length || 0 / pageSize))
-    const currentEvents = data?.slice((page - 1) * pageSize, page * pageSize) || []             
+    const currentEvents = data?.slice((page - 1) * pageSize, page * pageSize) || []
 
     if (loading) {
         return (
@@ -43,22 +43,14 @@ const EventCard = (props: EventCardProps) => {
         <div className={styles.container}>
             <div className={styles.cards}>
                 {currentEvents.map(event => (
-                    <div key={event.event} className={styles.card}
-                    >
+                    <div key={event.event} className={styles.card}>
                         <div className={styles.cardHeader}>
                             <div>
-                                <div className={styles.stage}>
-                                    {event.programStage}
-                                </div>
-
-                                <div className={styles.date}>
-                                    {formatDate(event.occurredAt)}
-                                </div>
+                                <div className={styles.stage}>Occurred at</div>
+                                <div className={styles.date}>{formatDate(event.occurredAt)}</div>
                             </div>
 
-                            <div
-                                className={`${styles.status} ${event.status === 'COMPLETED' ? styles.completed : styles.active}`}
-                            >
+                            <div className={`${styles.status} ${event.status === 'COMPLETED' ? styles.completed : styles.active}`}>
                                 {event.status}
                             </div>
                         </div>
@@ -67,30 +59,18 @@ const EventCard = (props: EventCardProps) => {
 
                         <div className={styles.content}>
                             <div className={styles.row}>
-                                <span className={styles.label}>
-                                    Organisation unit
-                                </span>
-
-                                <span className={styles.value}>
-                                    {event.orgUnit}
-                                </span>
+                                <span className={styles.label}>Organisation unit</span>
+                                <span className={styles.value}>{event.orgUnit}</span>
                             </div>
 
-                            <div className={styles.row}>
-                                <span className={styles.label}>
-                                    Event
-                                </span>
-
-                                <span className={styles.value}>
-                                    {event.event}
-                                </span>
-                            </div>
+                            {/* <div className={styles.row}>
+                                <span className={styles.label}>Event</span>
+                                <span className={styles.value}>{event.event}</span>
+                            </div> */}
                         </div>
 
                         <div className={styles.cardFooter}>
-                            <Button small secondary >
-                                View details
-                            </Button>
+                            <Button small secondary>Details</Button>
                         </div>
                     </div>
                 ))}
@@ -101,10 +81,7 @@ const EventCard = (props: EventCardProps) => {
                     <span className={styles.paginationInfo}>
                         Showing{' '}
                         {(page - 1) * pageSize + 1}-
-                        {Math.min(
-                            page * pageSize,
-                            data.length
-                        )}{' '}
+                        {Math.min(page * pageSize, data.length)}{' '}
                         of {data.length}
                     </span>
 
@@ -112,9 +89,7 @@ const EventCard = (props: EventCardProps) => {
                         <Button
                             small
                             disabled={page === 1}
-                            onClick={() =>
-                                setPage(current => current - 1)
-                            }
+                            onClick={() => setPage(current => current - 1)}
                         >
                             Previous
                         </Button>
@@ -126,9 +101,7 @@ const EventCard = (props: EventCardProps) => {
                         <Button
                             small
                             disabled={page === pageCount}
-                            onClick={() =>
-                                setPage(current => current + 1)
-                            }
+                            onClick={() => setPage(current => current + 1)}
                         >
                             Next
                         </Button>

@@ -202,6 +202,8 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
         "EVENT_CARDS": EventCard,
     }
 
+    console.log(attributes)
+
     const tabsElements = helper?.tabs
         ?.sort((a, b) => a.order - b.order)
         ?.map((tab) => ({
