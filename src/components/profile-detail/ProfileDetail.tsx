@@ -23,6 +23,8 @@ import { D2I18n } from 'dhis2-semis-types';
 import { useFileResource } from 'dhis2-semis-functions';
 import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/useGetProfile';
 import styles from './ProfileDetail.module.css';
+import useGetSelectedKeys from '../../../../../libs/components/src/hooks/config/useGetSelectedKeys';
+import ModalManager from '../modal/assignFinalDecision/ModalManager';
 
 type ProfileDetailProps = {
     i18n: D2I18n;
@@ -92,16 +94,20 @@ export default function ProfileDetail(props: ProfileDetailProps) {
         onDeleteRecord,
     } = props;
 
+    const { program: programData, dataStoreData } = useGetSelectedKeys()
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const moreMenuRef = React.useRef<HTMLDivElement | null>(null);
     const [photoSrc, setPhotoSrc] = useState<string | null>(null);
     const [photoLoading, setPhotoLoading] = useState<boolean>(false);
     const { getFileResource } = useFileResource();
+    const [openFinalDecisionModal, setOpenFinalDecisionModal] = useState<boolean>(false);
+    const [finalDecision, setFinalDecision] = useState<object | null>(null);
 
     const title = fields?.title ?? i18n.t('Student Profile');
     const subtitle = fields?.subtitle ?? '—';
     const photoAttribute = fields?.photoAttributeId;
     const badges = fields?.badges ?? [];
+
 
     useEffect(() => {
         if (!trackedEntity || !photoAttribute || !program) return;
@@ -123,12 +129,22 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             .catch(() => setPhotoLoading(false));
     }, [trackedEntity, photoAttribute, program]);
 
+    const finalDecisionOptions = programData?.programStages?.find((stage) => stage?.id == dataStoreData?.['final-result']?.programStage)
+        ?.programStageDataElements?.find((dataElement) => dataElement?.dataElement?.id == dataStoreData?.['final-result']
+            ?.status)?.dataElement?.optionSet?.options
+
+
     if (loading) {
         return (
             <Box width="100%" height="120px" display="flex" alignItems="center" justifyContent="center">
                 <CircularLoader />
             </Box>
         );
+    }
+
+    const onAssignFinalDecision = (decision: object) => {
+        setOpenFinalDecisionModal(true);
+        setFinalDecision(decision);
     }
 
     return (
@@ -175,49 +191,30 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                             placement="bottom-end"
                         >
                             <Menu dense>
-                                <MenuItem
-                                    onClick={() => {
-                                        onPrintProfile?.();
-                                        setMoreMenuOpen(false);
-                                    }}
-                                    icon={<Print />}
-                                >
-                                    {i18n.t('Print profile')}
-                                </MenuItem>
-                                <MenuItem
-                                    onClick={() => {
-                                        onExportRecord?.();
-                                        setMoreMenuOpen(false);
-                                    }}
-                                    icon={<IconExport />}
-                                >
-                                    {i18n.t('Export record')}
-                                </MenuItem>
-                                <MenuItem
-                                    danger
-                                    onClick={() => {
-                                        onMarkAsDropout?.();
-                                        setMoreMenuOpen(false);
-                                    }}
-                                    icon={<IconDropout />}
-                                >
-                                    {i18n.t('Mark as Dropout')}
-                                </MenuItem>
-                                <MenuItem
-                                    danger
-                                    onClick={() => {
-                                        onDeleteRecord?.();
-                                        setMoreMenuOpen(false);
-                                    }}
-                                    icon={<IconDelete />}
-                                >
-                                    {i18n.t('Delete record')}
-                                </MenuItem>
+                                {
+                                    finalDecisionOptions?.map((option) => (
+                                        <MenuItem
+                                            key={option?.value}
+                                            onClick={() => onAssignFinalDecision(option)}
+                                        >
+                                            Mark student as {option?.label}
+                                        </MenuItem>
+                                    ))
+                                }
                             </Menu>
                         </Popover>
                     )}
                 </ButtonStrip>
             </div>
+            {openFinalDecisionModal && (
+                <ModalManager
+                    i18n={i18n}
+                    saveMode="UPDATE"
+                    finalDecision={finalDecision}
+                    open={openFinalDecisionModal}
+                    setOpen={setOpenFinalDecisionModal}
+                />
+            )}
         </Card>
     );
 }

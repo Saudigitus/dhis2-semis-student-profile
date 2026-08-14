@@ -5,6 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { SchoolCalendarData } from "dhis2-semis-components";
 import { academicYear } from '../../utils/profile/formatAcademicYear';
 import { useUrlParams } from "dhis2-semis-functions";
+import { academicYearPeriod } from '../../utils/academicYearPeriod/getAcademicYearPeriod';
 
 
 const AcademicYearSelectorComponent = () => {
@@ -17,6 +18,10 @@ const AcademicYearSelectorComponent = () => {
     if (!academicYearFromUrl) {
         add("academicYear", selectedYear);
     }
+
+    
+    console.log(academicYearPeriod(academicYearFromUrl!, academicYearDataStore), "djhasjk")
+
 
     return (
         <AcademicYearSelector
