@@ -1,9 +1,10 @@
 import { useGetSectionTypeLabel } from "dhis2-semis-functions";
 import { useDataStoreKey, useProgramsKeys } from "dhis2-semis-components";
+import type { DataStoreProps } from "dhis2-semis-types"
 
 export default function useGetSelectedKeys() {
     const { sectionName } = useGetSectionTypeLabel();
-    const dataStoreData: any = useDataStoreKey({ sectionType: sectionName });
+    const dataStoreData: DataStoreProps = useDataStoreKey({ sectionType: sectionName });
     const programsValues = useProgramsKeys();
 
 

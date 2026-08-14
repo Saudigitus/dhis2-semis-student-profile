@@ -12,7 +12,7 @@ import AcademicYearSelectorComponent from '../../components/chips';
 import styles from "./studentProfile.module.css";
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
-    const { loading, fields } = useGetProfile();
+    const { loading, fields, attributes, profileAttributeIds } = useGetProfile();
     const { dataStoreData, program } = useGetSelectedKeys();
     const { sectionName } = useGetSectionTypeLabel();
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
@@ -20,6 +20,9 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
 
 
     const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
+
+
+    console.log(enrollmentFormFields, "enrollmentFormFields", attributes, profileAttributeIds)
 
     const handleEdit = useCallback(() => {
         setOpenEditModal(true);
@@ -63,7 +66,16 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 <div style={{ marginBottom: "15px" }} />
                 <SumarryCardComponent />
                 <div style={{ marginBottom: "15px" }} />
-                <TabPanel i18n={i18n} />
+                <TabPanel
+                    i18n={i18n}
+                    loading={loading}
+                    attributes={attributes.map((item) => ({
+                        name: item?.attribute, value: item?.value
+                    })) || []}
+                    attributeColumns={enrollmentFormFields[0]?.fields?.map((item) => ({
+                        label: item?.displayName, value: item?.id || item?.name
+                    })) || []}
+                />
             </div>
 
             {openEditModal && (

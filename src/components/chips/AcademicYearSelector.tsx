@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AcademicYearSelectorProps, YearOption } from "../../types/chips/academicYearSelector";
 import styles from "./academicYearSelector.module.css";
-//@ts-ignore
 import { useUrlParams } from "dhis2-semis-functions";
 import { Button, Menu, MenuItem, Popover } from "@dhis2/ui";
 
