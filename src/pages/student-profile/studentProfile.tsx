@@ -54,6 +54,8 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                     i18n={i18n}
                     loading={loading}
                     fields={fields}
+                    trackedEntity={trackedEntity}
+                    program={dataStoreData?.program}
                     onEdit={handleEdit}
                     onPrintProfile={handlePrintProfile}
                     onExportRecord={handleExportRecord}
