@@ -27,7 +27,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
     const { headers: eventHeaders } = useHeaders({ programConfigData: program!, dataStoreData: dataStoreData as any })
 
     useEffect(() => {
-        add('tab', dataStoreData?.profile?.tabs?.sort((a, b) => a.order - b.order)[0]?.id)
+        add('tab', [...(dataStoreData?.profile?.tabs || [])].sort((a, b) => a?.order - b?.order)?.[0]?.id)
     }, [])
 
     const componentsMapping: any = {
@@ -36,9 +36,10 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
         "EVENT_CARDS": EventCard,
     }
 
-    const tabsElements = dataStoreData?.profile?.tabs
-        ?.sort((a, b) => a.order - b.order)
-        ?.map((tab) => ({
+   const tabsElements = dataStoreData?.profile?.tabs
+    ? [...dataStoreData.profile.tabs]
+        .sort((a, b) => a?.order - b?.order)
+        .map((tab) => ({
             value: tab?.id,
             name: tab?.displayName,
             component: <div
@@ -77,7 +78,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                         )
                     })}
             </div>
-        }))
+        })) : []
 
     return (
         <Paper >
