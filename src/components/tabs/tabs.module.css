@@ -29,4 +29,8 @@
         align-items: start;
         flex-direction: column;
     }
+
+    .panelgrid {
+        grid-template-columns: 1fr;
+    }
 }
