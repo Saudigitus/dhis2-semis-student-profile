@@ -207,6 +207,6 @@ export function useGetProfile() {
         trackedEntity,
         identityCard,
         attributes,
-        fields,
+        fields
     };
 }
