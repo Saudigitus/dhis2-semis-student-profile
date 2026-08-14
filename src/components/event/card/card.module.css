@@ -45,9 +45,12 @@
     }
 }
 
-/* Se só existir 1 card na página, ele ocupa a linha inteira,
-   independentemente de quantas colunas a grelha tiver. */
-.cards .card:only-child {
+/* Nota: expandir o card único não é feito via :only-child aqui,
+   porque isso reagiria a qualquer página com 1 card sobrando
+   (ex: 5 itens com pageSize 4, sobra 1 na última página).
+   O componente aplica a classe .full explicitamente apenas quando
+   data.length === 1 no total. Ver EventCard.tsx. */
+.card.full {
     grid-column: 1 / -1;
 }
 

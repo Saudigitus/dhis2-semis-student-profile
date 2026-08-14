@@ -81,7 +81,10 @@ const EventCard = (props: EventCardProps) => {
                 <>
                     <div className={styles.cards}>
                         {currentEvents.map(event => (
-                            <div key={event?.event} className={styles.card}>
+                            <div
+                                key={event?.event}
+                                className={`${styles.card} ${total === 1 ? styles.full : ''}`}
+                            >
                                 <div className={styles.cardHeader}>
                                     <div>
                                         <div className={styles.stage}>Occurred at</div>
