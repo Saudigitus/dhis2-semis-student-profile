@@ -9,7 +9,7 @@ import { useUrlParams } from "dhis2-semis-functions"
 const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { remove } = useUrlParams()
+    const { remove, useQuery } = useUrlParams()
     const { studentName, loading } = useGetProfile()
     const { loading: loadingAcademicYear, refetch } = useDataStore()
 
@@ -18,8 +18,10 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
     }, [])
 
     const handleBack = () => {
+        const originModule = useQuery.get("module")
         remove("tab")
-        navigate(`/semis/enrollments${location?.search}`);
+        remove("module")
+        navigate(`/semis/${originModule}${location?.search}`);
     }
 
 
