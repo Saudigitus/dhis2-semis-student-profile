@@ -25,6 +25,7 @@ import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/u
 import styles from './ProfileDetail.module.css';
 import useGetSelectedKeys from '../../../../../libs/components/src/hooks/config/useGetSelectedKeys';
 import ModalManager from '../modal/assignFinalDecision/ModalManager';
+import Loader from '../loader/Loader';
 
 type ProfileDetailProps = {
     i18n: D2I18n;
@@ -134,13 +135,13 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             ?.status)?.dataElement?.optionSet?.options
 
 
-    if (loading) {
-        return (
-            <Box width="100%" height="120px" display="flex" alignItems="center" justifyContent="center">
-                <CircularLoader />
-            </Box>
-        );
-    }
+    // if (loading) {
+    //     return (
+    //         <Box width="100%" height="120px" display="flex" alignItems="center" justifyContent="center">
+    //             <CircularLoader />
+    //         </Box>
+    //     );
+    // }
 
     const onAssignFinalDecision = (decision: object) => {
         setOpenFinalDecisionModal(true);
@@ -160,25 +161,31 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                             <IconUser sx={{ color: '#1E6194', fontSize: 28 }} />
                         )}
                     </div>
-                    <div className={styles.studentDetails}>
-                        <h2 className={styles.studentName}>{title}</h2>
-                        <Label className={styles.studentId}>{subtitle}</Label>
-                        <div className={styles.tagsContainer}>
-                            {badges.map((badge) => (
-                                <BadgeTag key={badge.order} badge={badge} i18n={i18n} />
-                            ))}
-                        </div>
-                    </div>
+                    {
+                        loading ?
+                            <Loader />
+                            :
+                            <div className={styles.studentDetails}>
+                                <h2 className={styles.studentName}>{title}</h2>
+                                <Label className={styles.studentId}>{subtitle}</Label>
+                                <div className={styles.tagsContainer}>
+                                    {badges.map((badge) => (
+                                        <BadgeTag key={badge.order} badge={badge} i18n={i18n} />
+                                    ))}
+                                </div>
+                            </div>
+                    }
                 </div>
 
                 <ButtonStrip>
-                    <Button small primary onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
+                    <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
                         {i18n.t('Edit')}
                     </Button>
                     <div ref={moreMenuRef}>
                         <Button
                             small
                             secondary
+                            disabled={loading}
                             icon={<IconMore />}
                             onClick={() => setMoreMenuOpen((open) => !open)}
                             aria-label="More actions"

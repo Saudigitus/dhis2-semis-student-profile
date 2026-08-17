@@ -13,7 +13,7 @@ import DetailCard from '../card/detail/DetailCard';
 import { useHeaders } from '../../hooks/useHeaders/useHeaders';
 
 interface TabPanelProps {
-    i18n?: D2I18n;
+    i18n: D2I18n;
     events?: any;
     attributes?: any
     loading?: boolean;

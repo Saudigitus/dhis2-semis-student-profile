@@ -2,6 +2,7 @@ import { Button } from '@dhis2/ui'
 import styles from './card.module.css'
 import { useState, useEffect, useRef } from 'react'
 import { ModalComponent } from 'dhis2-semis-components'
+import Loader from '../../../components/loader/Loader'
 import ListComponent from '../../../components/list/List'
 import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
 
@@ -91,7 +92,7 @@ const EventCard = (props: EventCardProps) => {
     return (
         <div className={styles.container} ref={containerRef}>
             {loading ? (
-                <div className={styles.loading}>Loading...</div>
+                <Loader />
             ) : !data?.length ? (
                 <div className={styles.empty}>
                     {emptyMessage}

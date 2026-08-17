@@ -1,4 +1,5 @@
 import styles from "./list.module.css";
+import Loader from "../loader/Loader";
 import { FunctionComponent } from "react";
 import { D2I18n, ProgramConfig } from "dhis2-semis-types";
 import { getDisplayName } from "dhis2-semis-components";
@@ -20,7 +21,7 @@ const ListComponent: FunctionComponent<ListProps> = (props) => {
 
     if (loading) {
         return (
-            <div className={styles.loading}>Loading...</div>
+            <Loader />
         )
     }
 

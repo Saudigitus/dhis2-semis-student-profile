@@ -6,7 +6,7 @@
 
 .profileHeader {
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: space-between;
     gap: 12px;
     padding: 12px 16px;
@@ -19,8 +19,8 @@
 }
 
 .avatarContainer {
-    width: 56px;
-    height: 56px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     background-color: #E8F0F8;
     display: flex;

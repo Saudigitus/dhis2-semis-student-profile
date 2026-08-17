@@ -8,6 +8,7 @@ interface MetricCardProps {
     variant?: MetricCardVariant;
     icon?: ReactNode;
     className?: string;
+    loader?: ReactNode;
 }
 
 export type { MetricCardProps, MetricCardVariant };
