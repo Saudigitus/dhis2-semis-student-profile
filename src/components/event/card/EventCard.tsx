@@ -69,6 +69,8 @@ const EventCard = (props: EventCardProps) => {
         setPage(Math.min(Math.max(target, 1), pageCount))
     }
 
+    console.log(props)
+
     return (
         <div className={styles.container} ref={containerRef}>
             {loading ? (
@@ -106,19 +108,22 @@ const EventCard = (props: EventCardProps) => {
                                         : <span className={styles.label}>No Details</span>
                                     }
                                 </div>
+                                {event?.dataValues?.length ?
+                                    <ListComponent
+                                        i18n={i18n}
+                                        data={columns.map((column: any) => {
+                                            const dataValue = selectedEvent?.dataValues?.find((item: any) => item.dataElement === column.id || item.attribute === column.id)
 
-                                <ListComponent
-                                    i18n={i18n}
-                                    data={columns.map((column: any) => {
-                                        const dataValue = selectedEvent?.dataValues?.find((item: any) => item.dataElement === column.id || item.attribute === column.id)
+                                            return {
+                                                value: dataValue?.value,
+                                                displayName: column.name,
+                                                attribute: dataValue?.dataElement,
+                                            }
+                                        }) || []}
+                                    />
+                                    : null
+                                }
 
-                                        return {
-                                            value: dataValue?.value,
-                                            displayName: column.name,
-                                            attribute: dataValue?.dataElement,
-                                        }
-                                    }) || []}
-                                />
                             </div>
                         ))}
                     </div>
@@ -148,7 +153,8 @@ const EventCard = (props: EventCardProps) => {
                         </div>
                     )}
                 </>
-            )}
+            )
+            }
             {
                 selectedEvent &&
                 <EventModal
@@ -160,7 +166,7 @@ const EventCard = (props: EventCardProps) => {
                     setSelectedEvent={setSelectedEvent}
                 />
             }
-        </div>
+        </div >
     )
 }
 

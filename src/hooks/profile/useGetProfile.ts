@@ -195,7 +195,7 @@ export function useGetProfile() {
                 filter: [`${schoolCalendarData.academicYear}:in:${academicYear}`],
             })
 
-            if (!event?.length) return;
+            // if (!event?.length) return;
 
             const teis = await getTeis({
                 program: dataStoreData.program,

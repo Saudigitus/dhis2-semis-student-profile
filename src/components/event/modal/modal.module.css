@@ -168,14 +168,17 @@
     word-break: break-word;
 }
 
-.modalCardHeader {
+.modalHeader {
     padding: 6px 16px;
     background: #fafbfc;
     border: 1px solid #f0f2f5 !important;
 }
 
-.modalCardHeader * {
-    padding: 0;
+.modalHeaderRight {
+    gap: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .modalButtons {

@@ -25,13 +25,13 @@ const EventModal: FunctionComponent<EventModalProps> = (props) => {
             title={`${(title || 'Event details')} (${events.indexOf(selectedEvent) + 1}/${events.length})`}
         >
             <div className={styles.details}>
-                <div className={styles.cardHeader}>
+                <div className={styles.modalHeader}>
                     <div>
                         <div className={styles.stage}>Occurred at</div>
                         <div className={styles.date}>{format(new Date(selectedEvent?.occurredAt), 'yyyy-MM-dd')}</div>
                     </div>
 
-                    <div className={styles.cardHeaderRight}>
+                    <div className={styles.modalHeaderRight}>
                         <span className={styles.value}>{selectedEvent?.orgUnitName || selectedEvent?.orgUnit}</span>
                         <div className={`${styles.status} ${selectedEvent?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
                             {selectedEvent?.status}
