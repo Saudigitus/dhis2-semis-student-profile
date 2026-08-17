@@ -60,7 +60,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                 i18n={i18n}
                                 key={`${tab.id}-${component?.order}`}
                                 title={component?.displayName ?? tab?.displayName}
-                                action={component?.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
+                                // action={component?.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
                             >
                                 <Component
                                     i18n={i18n}
@@ -72,7 +72,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                         attributes :
                                         events?.[component?.details!?.programStage] || []
                                     }
-                                    columns={eventHeaders?.[component?.details!?.programStage] || []}
+                                    columns={eventHeaders?.[component?.details!?.programStage]?.filter(col => col.visible) || [] || []}
                                 />
                             </DetailCard>
                         )

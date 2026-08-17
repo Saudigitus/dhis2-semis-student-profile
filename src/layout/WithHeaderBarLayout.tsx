@@ -15,6 +15,11 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
 
     useEffect(() => {
         refetch()
+
+        return () => {
+            remove("tab")
+            remove("module")
+        }
     }, [])
 
     const handleBack = () => {
@@ -25,7 +30,7 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
     }
 
 
-    if (loading || loadingAcademicYear) {
+    if (loadingAcademicYear) {
         return (
             <Center>
                 <CircularLoader />
@@ -38,8 +43,8 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
             header={
                 <TopHeader
                     type="student"
-                    studentName={studentName}
                     onBack={() => handleBack()}
+                    studentName={loading ? <CircularLoader small /> : studentName || ""}
                 />
             }
         >

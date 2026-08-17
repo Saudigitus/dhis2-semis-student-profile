@@ -9,7 +9,7 @@ interface ListProps {
     loading?: string;
     data: {
         value?: string;
-        attribute: string;
+        attribute?: string;
         displayName?: string;
     }[];
     notRecorded?: string;
@@ -36,7 +36,7 @@ const ListComponent: FunctionComponent<ListProps> = (props) => {
                         <p className={isNotRecorded ? styles.valueNotRecorded : styles.value}>
                             {isNotRecorded
                                 ? i18n.t(notRecorded)
-                                : getDisplayName({ metaData: item?.attribute, value: item?.value || '', program: programConfig! })
+                                : getDisplayName({ metaData: item?.attribute!, value: item?.value || '', program: programConfig! })
                             }
                         </p>
                     </div>

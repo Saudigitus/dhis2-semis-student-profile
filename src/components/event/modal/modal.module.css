@@ -1,0 +1,273 @@
+.container {
+    --color-text-primary: #334155;
+    --color-text-secondary: #64748b;
+    --color-text-muted: #94a3b8;
+    --color-border: #eef1f4;
+    --color-border-hover: #cbd5e1;
+    --color-bg-completed: #e7f5ec;
+    --color-text-completed: #287d3c;
+    --color-bg-active: #e8f1fb;
+    --color-text-active: #2768a5;
+    --radius-sm: 4px;
+
+    width: 100%;
+    padding: 5px;
+    container-type: inline-size;
+}
+
+/*
+  Estratégia única de responsividade: container queries.
+  Os breakpoints (700px e 400px) têm de ser iguais aos valores usados
+  em EventCard.tsx (BREAKPOINT_LARGE / BREAKPOINT_SMALL), para que o
+  número de cards por página (pageSize) acompanhe sempre o número de
+  colunas visíveis.
+
+  >= 700px  -> 4 colunas, pageSize 4
+  400-699px -> 2 colunas, pageSize 2
+  <  400px  -> 1 coluna,  pageSize 1
+*/
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@container (max-width: 699px) {
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+}
+
+@container (max-width: 399px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Nota: expandir o card único não é feito via :only-child aqui,
+   porque isso reagiria a qualquer página com 1 card sobrando
+   (ex: 5 itens com pageSize 4, sobra 1 na última página).
+   O componente aplica a classe .full explicitamente apenas quando
+   data.length === 1 no total. Ver EventCard.tsx. */
+.card.full {
+    grid-column: 1 / -1;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #dfe3e8;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition:
+        box-shadow 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.card:hover {
+    border-color: var(--color-border-hover);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.cardHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 14px;
+    gap: 10px;
+}
+
+.stage {
+    margin-bottom: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 20px;
+}
+
+.date {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    line-height: 18px;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 7px !important;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 14px;
+    white-space: nowrap;
+}
+
+.completed {
+    background: #e7f5ec !important;
+    color: #287d3c !important;
+}
+
+.active {
+    background: #e8f1fb !important;
+    color: #2768a5 !important;
+}
+
+.divider {
+    width: 100%;
+    height: 1px;
+    background: var(--color-border);
+}
+
+.content {
+    flex: 1;
+    padding: 4px 14px;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* padding: 8px 0; */
+    gap: 2px;
+    /* border-bottom: 1px solid var(--color-border); */
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.label {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    /* line-height: 16px; */
+}
+
+.noDetailsLabel {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    /* line-height: 16px; */
+}
+
+
+
+.value {
+    width: 100%;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    line-height: 18px;
+    word-break: break-word;
+}
+
+.modalCardHeader {
+    padding: 6px 16px;
+    background: #fafbfc;
+    border: 1px solid #f0f2f5 !important;
+}
+
+.modalCardHeader * {
+    padding: 0;
+}
+
+.modalButtons {
+    gap: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 10px 14px;
+    background: #fafbfc;
+    border-top: 1px solid var(--color-border);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 12px 12px 10px;
+    border-radius: 4px;
+    background: #fafbfc;
+    border: 1px solid #dfe3e8;
+}
+
+.paginationInfo {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.paginationActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pageInfo {
+    min-width: 80px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    padding: 24px;
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    font-size: 14px;
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    padding: 24px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+.details {
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+@container (max-width: 699px) {
+    .cardHeader {
+        padding: 12px;
+    }
+
+    .content {
+        padding: 4px 12px;
+    }
+
+    .modalButtons {
+        padding: 10px 12px;
+    }
+
+    /* .pagination {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    } */
+
+    /* .paginationActions {
+        width: 100%;
+        justify-content: space-between;
+    } */
+}

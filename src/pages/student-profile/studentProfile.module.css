@@ -5,3 +5,16 @@
     gap: 1rem;
     margin-top: 10px;
 }
+
+.noRecords {
+    color: #999;
+    padding: 40px;
+    font-style: italic;
+    text-align: center;
+}
+
+.profileSummary{
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+}

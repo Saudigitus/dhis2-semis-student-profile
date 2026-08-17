@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useGetTeis, useUrlParams } from 'dhis2-semis-functions';
+import { useGetEvents, useGetTeis, useUrlParams } from 'dhis2-semis-functions';
 import useGetSelectedKeys from '../config/useGetSelectedKeys';
 import { profileDetails } from '../../schema/profile/profile-details';
 import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
 import { SchoolCalendarData } from 'dhis2-semis-components';
-import { formatEnrollmentEvents } from '../../utils/profile/formatEnrollmentEvents';
+import { formatEnrollmentEvents, FormattedEvents } from '../../utils/profile/formatEnrollmentEvents';
 import { useOrgUnitName } from '../orgUnit/useOrgUnitName';
 
 type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
@@ -140,10 +140,12 @@ export function resolveProfileFields(
 export function useGetProfile() {
     const location = useLocation();
     const { getTeis } = useGetTeis();
+    const { getEvents } = useGetEvents();
     const { urlParameters } = useUrlParams();
-    const { academicYear } = urlParameters
+    const { academicYear, school } = urlParameters
     const { dataStoreData } = useGetSelectedKeys();
     const [loading, setLoading] = useState<boolean>(false);
+    const [events, setEvents] = useState<FormattedEvents>({});
     const [profileDetailsState, setProfileDetails] = useRecoilState(profileDetails);
     const schoolCalendarData = useRecoilValue(SchoolCalendarData);
     const { orgUnitNames, getOrgUnitNames, loading: orgUnitLoading, } = useOrgUnitName()
@@ -180,10 +182,25 @@ export function useGetProfile() {
 
         try {
             setLoading(true);
+            setProfileDetails([]);
+
+            const event = await getEvents({
+                program: dataStoreData.program,
+                trackedEntities: trackedEntity,
+                orgUnit: school!,
+                orgUnitMode: 'SELECTED',
+                trackedEntity: trackedEntity,
+                fields: '*',
+                programStage: dataStoreData?.registration?.programStage,
+                filter: [`${schoolCalendarData.academicYear}:in:${academicYear}`],
+            })
+
+            if (!event?.length) return;
 
             const teis = await getTeis({
                 program: dataStoreData.program,
-                trackedEntities: [trackedEntity],
+                trackedEntities: trackedEntity,
+                // trackedEntity: trackedEntity,
                 fields: 'enrollments[*,!attributes],attributes',
             } as any);
 
@@ -191,17 +208,18 @@ export function useGetProfile() {
                 setProfileDetails(teis[0]);
             }
 
-            await getOrgUnitNames(
-                profileDetailsState?.enrollments?.map((enrollment: any) => enrollment.orgUnit)
-                    ?.filter(Boolean)
-                    ?.filter(
-                        (
-                            orgUnit: string,
-                            index: number,
-                            array: string[]
-                        ) => array.indexOf(orgUnit) === index
-                    ) || []
-                || []);
+            if (event?.length) {
+                await getOrgUnitNames(
+                    profileDetailsState?.enrollments?.map((enrollment: any) => enrollment.orgUnit)
+                        ?.filter(Boolean)
+                        ?.filter((orgUnit: string, index: number, array: string[]) => array.indexOf(orgUnit) === index
+                        ) || []
+                    || []);
+
+                setEvents(formatEnrollmentEvents(profileDetailsState?.enrollments?.[0] || {}, orgUnitNames));
+            }
+
+
 
         } catch (error) {
             console.error('Error fetching student profile:', error);
@@ -211,20 +229,16 @@ export function useGetProfile() {
     };
 
     useEffect(() => {
-        if (profileDetailsState?.trackedEntity === trackedEntity) {
-            return;
-        }
-
         getProfile();
-    }, [trackedEntity]);
+    }, [trackedEntity, academicYear]);
 
     return {
         studentName,
-        loading,
+        loading: loading || orgUnitLoading,
         trackedEntity,
         identityCard,
         attributes,
         fields,
-        events: formatEnrollmentEvents(profileDetailsState?.enrollments?.[0] || {}, orgUnitNames),
+        events,
     };
 }

@@ -41,7 +41,6 @@ type ProfileDetailProps = {
 };
 
 function BadgeTag({ badge, i18n }: { badge: ResolvedBadge; i18n: D2I18n }) {
-    console.log(badge, "badge")
     const displayValue = badge.value ?? i18n.t('Not recorded');
     const isPositive = badge.source === 'FINAL_RESULT_STATUS' ? badge.value : true;
 
@@ -135,14 +134,6 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             ?.status)?.dataElement?.optionSet?.options
 
 
-    // if (loading) {
-    //     return (
-    //         <Box width="100%" height="120px" display="flex" alignItems="center" justifyContent="center">
-    //             <CircularLoader />
-    //         </Box>
-    //     );
-    // }
-
     const onAssignFinalDecision = (decision: object) => {
         setOpenFinalDecisionModal(true);
         setFinalDecision(decision);
@@ -178,9 +169,9 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                 </div>
 
                 <ButtonStrip>
-                    <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
+                    {/* <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
                         {i18n.t('Edit')}
-                    </Button>
+                    </Button> */}
                     <div ref={moreMenuRef}>
                         <Button
                             small

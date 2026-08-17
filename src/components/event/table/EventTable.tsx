@@ -3,9 +3,13 @@ import styles from './table.module.css'
 import { useEffect, useMemo, useState } from 'react'
 import { getDisplayName } from 'dhis2-semis-components'
 import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
+import EventModal from '../modal/EventModal'
+import { RemoveRedEye } from '@mui/icons-material'
 
 interface EventTableProps {
-    data: any[]
+    i18n?: any,
+    data: any[],
+    title?: string
     pageSize?: number
     loading?: boolean
     emptyMessage?: string
@@ -32,11 +36,16 @@ const utilsColumns = [
 ]
 
 const EventTable = (props: EventTableProps) => {
-    const { columns, data, emptyMessage = 'No data found.', loading = false, pageSize = 5, programConfig } = props
+    const { i18n, columns, data, emptyMessage = 'No data found.',
+        loading = false, pageSize = 5, programConfig, title, } = props
     const [page, setPage] = useState(1)
     const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
+    const [selectedEvent, setSelectedEvent] = useState<any>(null)
 
-    console.log(data)
+
+    const tableHeaders = utilsColumns
+        ?.concat(columns)
+        ?.concat({ id: 'details', visible: true, displayName: 'Details', })
 
     useEffect(() => {
         if (page > pageCount) {
@@ -83,10 +92,8 @@ const EventTable = (props: EventTableProps) => {
         <div className={styles.tableWrapper}>
             <div className={styles.table}>
                 <div className={styles.headerRow}>
-                    {utilsColumns
-                        ?.concat(columns)
-                        ?.filter(column => column.visible)
-                        .map(column => (
+                    {tableHeaders
+                        ?.map(column => (
                             <div
                                 key={column.id}
                                 className={styles.headerCell}
@@ -107,10 +114,8 @@ const EventTable = (props: EventTableProps) => {
                             key={row.event || rowIndex}
                             className={styles.row}
                         >
-                            {utilsColumns
-                                ?.concat(columns)
-                                ?.filter(column => column.visible)
-                                .map(column => {
+                            {tableHeaders
+                                ?.map(column => {
                                     const value = getValue(row, column.id)
                                     const isEmpty = value === null || value === undefined || value === ''
 
@@ -119,10 +124,18 @@ const EventTable = (props: EventTableProps) => {
                                             key={column.id}
                                             className={isEmpty ? styles.cellNotRecorded : styles.cell}
                                         >
-                                            {value ?? 'Not recorded'}
+                                            {
+                                                column?.id !== 'details' ?
+                                                    value ?? 'Not recorded'
+                                                    :
+                                                    <Button small secondary onClick={() => setSelectedEvent(row)}>
+                                                        ...
+                                                    </Button>
+                                            }
                                         </div>
                                     )
                                 })}
+
                         </div>
                     ))
                 )}
@@ -155,6 +168,18 @@ const EventTable = (props: EventTableProps) => {
                     </div>
                 </div>
             )}
+
+            {
+                selectedEvent &&
+                <EventModal
+                    i18n={i18n}
+                    events={data}
+                    title={title}
+                    selectedEvent={selectedEvent}
+                    setSelectedEvent={setSelectedEvent}
+                    columns={columns?.filter(col => col.visible) || []}
+                />
+            }
         </div>
     )
 }
