@@ -1,11 +1,15 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import { Center, CircularLoader } from '@dhis2/ui'
 import { HeaderBarLayout, TopHeader } from "dhis2-semis-components"
 import { useGetProfile } from "../hooks/profile/useGetProfile"
 import { useDataStore } from "../hooks/wrapper/useDataStore"
 import { useEffect } from "react"
+import { useUrlParams } from "dhis2-semis-functions"
 
 const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
+    const navigate = useNavigate()
+    const location = useLocation()
+    const { remove } = useUrlParams()
     const { studentName, loading } = useGetProfile()
     const { loading: loadingAcademicYear, refetch } = useDataStore()
 
@@ -13,6 +17,10 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
         refetch()
     }, [])
 
+    const handleBack = () => {
+        remove("tab")
+        navigate(`/semis/enrollments${location?.search}`);
+    }
 
 
     if (loading || loadingAcademicYear) {
@@ -27,8 +35,9 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
         <HeaderBarLayout
             header={
                 <TopHeader
-                    studentName={studentName}
                     type="student"
+                    studentName={studentName}
+                    onBack={() => handleBack()}
                 />
             }
         >
