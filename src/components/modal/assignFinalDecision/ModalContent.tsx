@@ -93,7 +93,7 @@ function ModalContent(props: ModalManagerInterface) {
                             {
                                 orgUnit: rgEvents?.[0]?.orgUnit,
                                 status: "COMPLETED",
-                                program: rgEvents?.[0]?.orgUnit,
+                                program: rgEvents?.[0]?.program,
                                 programStage: finalResult?.programStage,
                                 occurredAt: format(new Date(), "yyyy-MM-dd"),
                                 scheduledAt: format(new Date(), "yyyy-MM-dd"),
