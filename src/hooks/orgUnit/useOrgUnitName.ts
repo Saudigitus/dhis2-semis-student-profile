@@ -29,7 +29,6 @@ export const useOrgUnitName = () => {
 
                 
             const result = organisationUnits?.organisationUnits || []
-            console.log(result)
             setOrgUnitNames(result)
             return result
         } finally {

@@ -1,13 +1,14 @@
 import { D2I18n } from "dhis2-semis-types";
 import styles from "./detailCard.module.css";
 import { FunctionComponent, ReactNode } from "react";
+import { Button } from "@dhis2/ui";
 
 interface DetailCardProps {
-    i18n?: D2I18n;
+    i18n: D2I18n;
     title: string;
     badge?: string;
     children: ReactNode;
-    action?: {label: string, icon?: ReactNode, onClick?: () => void};
+    action?: { label: string, icon?: ReactNode, onClick?: () => void };
 }
 
 const DetailCard: FunctionComponent<DetailCardProps> = (props) => {

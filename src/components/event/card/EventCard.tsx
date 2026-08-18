@@ -1,9 +1,11 @@
 import { Button } from '@dhis2/ui'
 import styles from './card.module.css'
 import { useState, useEffect, useRef } from 'react'
-import { ModalComponent } from 'dhis2-semis-components'
+import Loader from '../../../components/loader/Loader'
 import ListComponent from '../../../components/list/List'
 import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
+import EventModal from '../modal/EventModal'
+import { format } from 'date-fns'
 
 interface EventCardProps {
     i18n?: any,
@@ -63,35 +65,14 @@ const EventCard = (props: EventCardProps) => {
 
     const currentEvents = data?.slice((page - 1) * pageSize, page * pageSize) || []
 
-    const formatDate = (date: string) => {
-        if (!date) { return '-' }
-
-        return new Date(date).toLocaleDateString('en-GB',
-            { day: '2-digit', month: 'short', year: 'numeric', }
-        )
-    }
-
     const goToPage = (target: number) => {
         setPage(Math.min(Math.max(target, 1), pageCount))
     }
 
-    const cardHeader = (event: any) => (
-        <div className={styles.cardHeader}>
-            <div>
-                <div className={styles.stage}>Occurred at</div>
-                <div className={styles.date}>{formatDate(event?.occurredAt)}</div>
-            </div>
-
-            <div className={`${styles.status} ${event?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
-                {event?.status}
-            </div>
-        </div>
-    )
-
     return (
         <div className={styles.container} ref={containerRef}>
             {loading ? (
-                <div className={styles.loading}>Loading...</div>
+                <Loader />
             ) : !data?.length ? (
                 <div className={styles.empty}>
                     {emptyMessage}
@@ -104,53 +85,48 @@ const EventCard = (props: EventCardProps) => {
                                 key={event?.event}
                                 className={`${styles.card} ${total === 1 ? styles.full : ''}`}
                             >
-                                {cardHeader(event)}
+                                <div className={styles.cardHeader}>
+                                    <div>
+                                        <div className={styles.stage}>Occurred at</div>
+                                        <div className={styles.date}>{format(new Date(event?.occurredAt), 'yyyy-MM-dd')}</div>
+                                    </div>
+
+                                    <div className={styles.cardHeaderRight}>
+                                        <span className={styles.value}>{event?.orgUnitName || event?.orgUnit}</span>
+                                        <div className={`${styles.status} ${event?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
+                                            {event?.status}
+                                        </div>
+                                    </div>
+                                </div>
                                 <div className={styles.divider} />
 
                                 <div className={styles.content}>
-                                    <div className={styles.row}>
-                                        <span className={styles.label}>Organisation unit</span>
-                                        <span className={styles.value}>{event?.orgUnitName || event?.orgUnit}</span>
-                                    </div>
+                                    {event?.dataValues?.length ?
+                                        <span className={styles.label}>Details</span>
+                                        : <span className={styles.label}>No Details</span>
+                                    }
                                 </div>
+                                {event?.dataValues?.length ?
+                                    <ListComponent
+                                        i18n={i18n}
+                                        data={columns.map((column: any) => {
+                                            const dataValue = event?.dataValues?.find((item: any) => item.dataElement === column.id || item.attribute === column.id)
 
-                                <div className={styles.cardFooter}>
-                                    <Button small secondary onClick={() => setSelectedEvent(event)}>Details</Button>
-                                </div>
+                                            return {
+                                                value: dataValue?.value,
+                                                displayName: column.name,
+                                                attribute: dataValue?.dataElement,
+                                            }
+                                        }) || []}
+                                    />
+                                    : null
+                                }
+
                             </div>
                         ))}
                     </div>
 
-                    {selectedEvent &&
-                        <ModalComponent
-                            open={selectedEvent}
-                            handleClose={() => setSelectedEvent(null)}
-                            title={`${(title || 'Event details')} (${data.indexOf(selectedEvent) + 1}/${data.length})`}
-                        >
-                            <div className={styles.details}>
-                                <div className={styles.modalCardHeader}>{cardHeader(selectedEvent)}</div>
-                                <ListComponent
-                                    i18n={i18n}
-                                    data={selectedEvent?.dataValues?.map((item: any) => ({
-                                        value: item.value,
-                                        displayName: columns.find(col => col.id === item.dataElement)?.name || columns.find(col => col.id === item.attribute)?.name || item.dataElementName,
-                                    })) || []}
-                                />
-
-                                {data?.length > 1 && (<div className={styles.cardFooter}>
-                                    <Button small secondary onClick={() => setSelectedEvent(
-                                        data[data.indexOf(selectedEvent) - 1] || null
-                                    )}>Previous</Button>
-                                    <Button small secondary onClick={() => setSelectedEvent(
-                                        data[data.indexOf(selectedEvent) + 1] || null
-                                    )}>Next</Button>
-                                </div>)}
-                            </div>
-
-                        </ModalComponent>
-                    }
-
-                    {total > 0 && (
+                    {total > 1 && (
                         <div className={styles.pagination}>
                             <span className={styles.paginationInfo}>
                                 Showing{' '}
@@ -175,8 +151,20 @@ const EventCard = (props: EventCardProps) => {
                         </div>
                     )}
                 </>
-            )}
-        </div>
+            )
+            }
+            {
+                selectedEvent &&
+                <EventModal
+                    i18n={i18n}
+                    events={data}
+                    title={title}
+                    columns={columns}
+                    selectedEvent={selectedEvent}
+                    setSelectedEvent={setSelectedEvent}
+                />
+            }
+        </div >
     )
 }
 

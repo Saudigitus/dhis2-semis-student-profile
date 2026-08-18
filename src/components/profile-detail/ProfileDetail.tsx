@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Button,
     ButtonStrip,
     Card,
     CircularLoader,
+    IconEdit24,
+    IconLock24,
     Label,
     Menu,
     Popover,
     Tag,
+    Tooltip,
 } from '@dhis2/ui';
 import {
     EditDocument as IconEdit,
@@ -20,11 +23,17 @@ import {
     Block as IconDropout,
 } from "@mui/icons-material";
 import { D2I18n } from 'dhis2-semis-types';
-import { useFileResource } from 'dhis2-semis-functions';
+import { useFileResource, useSaveTei } from 'dhis2-semis-functions';
 import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/useGetProfile';
 import styles from './ProfileDetail.module.css';
 import useGetSelectedKeys from '../../../../../libs/components/src/hooks/config/useGetSelectedKeys';
 import ModalManager from '../modal/assignFinalDecision/ModalManager';
+import Loader from '../loader/Loader';
+import { useDataEngine } from '@dhis2/app-runtime';
+import { profileDetails } from '../../schema/profile/profile-details';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { getAttributes } from '../../utils/profile/getAttributes';
+import RefetchSchemaAtom from '../../schema/refetchSchema';
 
 type ProfileDetailProps = {
     i18n: D2I18n;
@@ -39,11 +48,15 @@ type ProfileDetailProps = {
     onDeleteRecord?: () => void;
 };
 
+const POSTFILERESOURCEMUTATION: any = {
+    resource: "fileResources",
+    data: ({ data }: any) => data,
+    type: "create"
+}
+
 function BadgeTag({ badge, i18n }: { badge: ResolvedBadge; i18n: D2I18n }) {
-    console.log(badge, "badge")
     const displayValue = badge.value ?? i18n.t('Not recorded');
     const isPositive = badge.source === 'FINAL_RESULT_STATUS' ? badge.value : true;
-
 
 
     return (
@@ -95,19 +108,27 @@ export default function ProfileDetail(props: ProfileDetailProps) {
     } = props;
 
     const { program: programData, dataStoreData } = useGetSelectedKeys()
+    const engine = useDataEngine()
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
-    const moreMenuRef = React.useRef<HTMLDivElement | null>(null);
+    const moreMenuRef = useRef<HTMLDivElement | null>(null);
     const [photoSrc, setPhotoSrc] = useState<string | null>(null);
     const [photoLoading, setPhotoLoading] = useState<boolean>(false);
     const { getFileResource } = useFileResource();
     const [openFinalDecisionModal, setOpenFinalDecisionModal] = useState<boolean>(false);
     const [finalDecision, setFinalDecision] = useState<object | null>(null);
+    const fileInputRef = useRef(null)
+    const [refetch, setRefetch] = useRecoilState(RefetchSchemaAtom);
+    const [loader, setLoader] = useState(false);
+    const { saveTei, loading: saving } = useSaveTei();
+    const profileDetailsState = useRecoilValue(profileDetails);
+
 
     const title = fields?.title ?? i18n.t('Student Profile');
     const subtitle = fields?.subtitle ?? '—';
     const photoAttribute = fields?.photoAttributeId;
     const badges = fields?.badges ?? [];
 
+    const canUploadImage = dataStoreData.profile?.identityCard?.photo?.attribute
 
     useEffect(() => {
         if (!trackedEntity || !photoAttribute || !program) return;
@@ -134,51 +155,108 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             ?.status)?.dataElement?.optionSet?.options
 
 
-    if (loading) {
-        return (
-            <Box width="100%" height="120px" display="flex" alignItems="center" justifyContent="center">
-                <CircularLoader />
-            </Box>
-        );
-    }
-
     const onAssignFinalDecision = (decision: object) => {
         setOpenFinalDecisionModal(true);
         setFinalDecision(decision);
+    }
+
+    const handleImageClick = () => {
+        if (!canUploadImage) return
+
+        fileInputRef.current?.click()
+    }
+
+    const handleImageChange = async (event: any) => {
+        setLoader(true)
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        const postFile = await engine.mutate(POSTFILERESOURCEMUTATION, { variables: { data: { file: file } } }) as unknown as any
+
+        const fileId = postFile.response.fileResource.id
+
+        await saveTei({
+            data: getAttributes(profileDetailsState, fileId, canUploadImage),
+            messages: {
+                error: `${i18n.t("Could not conclude the operation.")}`,
+                sucess: `${i18n.t("Profile updated successfully")}`,
+            },
+            handleComplete: () => {
+                window.location.reload()
+                setLoader(false)
+            },
+        });
     }
 
     return (
         <Card className={styles.profileCard}>
             <div className={styles.profileHeader}>
                 <div className={styles.profileInfo}>
-                    <div className={styles.avatarContainer}>
-                        {photoLoading ? (
+
+                    <div
+                        className={`${styles.avatarContainer} ${canUploadImage ? styles.editable : styles.disabled
+                            }`}
+                        onClick={canUploadImage ? handleImageClick : undefined}
+                    >
+                        {photoLoading || loader ? (
                             <CircularLoader small />
                         ) : photoSrc ? (
-                            <img src={photoSrc} alt={title} className={styles.photo} />
+                            <img
+                                src={photoSrc}
+                                alt={title}
+                                className={styles.photo}
+                            />
                         ) : (
-                            <IconUser sx={{ color: '#1E6194', fontSize: 28 }} />
+                            <IconUser
+                                sx={{ color: '#1E6194', fontSize: 28 }}
+                            />
                         )}
+
+                        {canUploadImage ? (
+                            <div className={styles.editOverlay}>
+                                <IconEdit24 />
+                            </div>
+                        ) : (
+                            <Tooltip content={i18n.t("You can't upload/change a photo")}>
+                                <div className={styles.disabledIndicator}>
+                                    <IconLock24 />
+                                </div>
+                            </Tooltip>
+                        )}
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            style={{ display: 'none' }}
+                        />
                     </div>
-                    <div className={styles.studentDetails}>
-                        <h2 className={styles.studentName}>{title}</h2>
-                        <Label className={styles.studentId}>{subtitle}</Label>
-                        <div className={styles.tagsContainer}>
-                            {badges.map((badge) => (
-                                <BadgeTag key={badge.order} badge={badge} i18n={i18n} />
-                            ))}
-                        </div>
-                    </div>
+                    {
+                        loading ?
+                            <Loader />
+                            :
+                            <div className={styles.studentDetails}>
+                                <h2 className={styles.studentName}>{title}</h2>
+                                <Label className={styles.studentId}>{subtitle}</Label>
+                                <div className={styles.tagsContainer}>
+                                    {badges.map((badge) => (
+                                        <BadgeTag key={badge.order} badge={badge} i18n={i18n} />
+                                    ))}
+                                </div>
+                            </div>
+                    }
                 </div>
 
                 <ButtonStrip>
-                    <Button small primary onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
+                    <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
                         {i18n.t('Edit')}
                     </Button>
                     <div ref={moreMenuRef}>
                         <Button
                             small
                             secondary
+                            disabled={loading}
                             icon={<IconMore />}
                             onClick={() => setMoreMenuOpen((open) => !open)}
                             aria-label="More actions"

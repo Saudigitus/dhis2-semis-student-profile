@@ -32,7 +32,7 @@ interface FormattedEvent {
     dataValues: EnrollmentDataValue[]
 }
 
-type FormattedEvents = Record<string, FormattedEvent[]>
+export type FormattedEvents = Record<string, FormattedEvent[]>
 
 export const formatEnrollmentEvents = (enrollment?: Enrollment, orgUnits?: any[]): FormattedEvents => {
     if (!enrollment?.events?.length) {

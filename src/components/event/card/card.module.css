@@ -73,11 +73,18 @@
 }
 
 .cardHeader {
+    gap: 10px;
     display: flex;
+    padding: 14px 14px 10px;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 14px;
-    gap: 10px;
+}
+
+.cardHeaderRight {
+    gap: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .stage {
@@ -132,9 +139,9 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 8px 0;
+    /* padding: 8px 0; */
     gap: 2px;
-    border-bottom: 1px solid var(--color-border);
+    /* border-bottom: 1px solid var(--color-border); */
 }
 
 .row:last-child {
@@ -146,8 +153,18 @@
     font-size: 11px;
     font-weight: 500;
     color: var(--color-text-muted);
-    line-height: 16px;
+    /* line-height: 16px; */
 }
+
+.noDetailsLabel {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    /* line-height: 16px; */
+}
+
+
 
 .value {
     width: 100%;
@@ -158,25 +175,6 @@
     word-break: break-word;
 }
 
-.modalCardHeader {
-    padding: 6px 16px;
-    background: #fafbfc;
-    border: 1px solid #f0f2f5 !important;
-}
-
-.modalCardHeader * {
-    padding: 0;
-}
-
-.cardFooter {
-    gap: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 10px 14px;
-    background: #fafbfc;
-    border-top: 1px solid var(--color-border);
-}
 
 .pagination {
     display: flex;
@@ -249,15 +247,4 @@
     .cardFooter {
         padding: 10px 12px;
     }
-
-    /* .pagination {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    } */
-
-    /* .paginationActions {
-        width: 100%;
-        justify-content: space-between;
-    } */
 }

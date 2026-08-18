@@ -1,4 +1,5 @@
 import styles from "./list.module.css";
+import Loader from "../loader/Loader";
 import { FunctionComponent } from "react";
 import { D2I18n, ProgramConfig } from "dhis2-semis-types";
 import { getDisplayName } from "dhis2-semis-components";
@@ -8,7 +9,7 @@ interface ListProps {
     loading?: string;
     data: {
         value?: string;
-        attribute: string;
+        attribute?: string;
         displayName?: string;
     }[];
     notRecorded?: string;
@@ -20,7 +21,7 @@ const ListComponent: FunctionComponent<ListProps> = (props) => {
 
     if (loading) {
         return (
-            <div className={styles.loading}>Loading...</div>
+            <Loader />
         )
     }
 
@@ -35,7 +36,7 @@ const ListComponent: FunctionComponent<ListProps> = (props) => {
                         <p className={isNotRecorded ? styles.valueNotRecorded : styles.value}>
                             {isNotRecorded
                                 ? i18n.t(notRecorded)
-                                : getDisplayName({ metaData: item?.attribute, value: item?.value || '', program: programConfig! })
+                                : getDisplayName({ metaData: item?.attribute!, value: item?.value || '', program: programConfig! })
                             }
                         </p>
                     </div>

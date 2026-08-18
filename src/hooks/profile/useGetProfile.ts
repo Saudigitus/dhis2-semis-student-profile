@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useGetTeis, useUrlParams } from 'dhis2-semis-functions';
+import { useGetEvents, useGetTeis, useUrlParams } from 'dhis2-semis-functions';
 import useGetSelectedKeys from '../config/useGetSelectedKeys';
 import { profileDetails } from '../../schema/profile/profile-details';
 import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
 import { SchoolCalendarData } from 'dhis2-semis-components';
-import { formatEnrollmentEvents } from '../../utils/profile/formatEnrollmentEvents';
+import { formatEnrollmentEvents, FormattedEvents } from '../../utils/profile/formatEnrollmentEvents';
 import { useOrgUnitName } from '../orgUnit/useOrgUnitName';
+import RefetchSchemaAtom from '../../schema/refetchSchema';
 
 type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
 type IdentityBadge = IdentityCard['badges'][number];
@@ -140,13 +141,16 @@ export function resolveProfileFields(
 export function useGetProfile() {
     const location = useLocation();
     const { getTeis } = useGetTeis();
+    const { getEvents } = useGetEvents();
     const { urlParameters } = useUrlParams();
-    const { academicYear } = urlParameters
+    const { academicYear, school } = urlParameters
     const { dataStoreData } = useGetSelectedKeys();
     const [loading, setLoading] = useState<boolean>(false);
+    const refetch = useRecoilValue(RefetchSchemaAtom);
+    const [events, setEvents] = useState<FormattedEvents>({});
     const [profileDetailsState, setProfileDetails] = useRecoilState(profileDetails);
     const schoolCalendarData = useRecoilValue(SchoolCalendarData);
-    const { orgUnitNames, getOrgUnitNames, loading: orgUnitLoading, } = useOrgUnitName()
+    const { getOrgUnitNames, loading: orgUnitLoading, } = useOrgUnitName()
 
 
     const trackedEntity = location.pathname.split('/').filter(Boolean).pop();
@@ -176,32 +180,42 @@ export function useGetProfile() {
     );
 
     const getProfile = async () => {
+        setEvents({});
         if (!trackedEntity || !dataStoreData?.program) return;
 
         try {
             setLoading(true);
+            setProfileDetails([]);
+
+            const event = await getEvents({
+                program: dataStoreData.program,
+                // trackedEntities: trackedEntity,
+                orgUnit: school!,
+                orgUnitMode: 'SELECTED',
+                trackedEntity: trackedEntity,
+                fields: '*',
+                programStage: dataStoreData?.registration?.programStage,
+                filter: [`${schoolCalendarData.academicYear}:in:${academicYear}`],
+            })
 
             const teis = await getTeis({
                 program: dataStoreData.program,
-                trackedEntities: [trackedEntity],
-                fields: 'enrollments[*,!attributes],attributes',
+                trackedEntities: trackedEntity,
+                fields: 'trackedEntity,enrollments[*,!attributes],attributes,trackedEntityType,orgUnit',
             } as any);
 
             if (teis?.[0]?.attributes) {
                 setProfileDetails(teis[0]);
             }
 
-            await getOrgUnitNames(
-                profileDetailsState?.enrollments?.map((enrollment: any) => enrollment.orgUnit)
-                    ?.filter(Boolean)
-                    ?.filter(
-                        (
-                            orgUnit: string,
-                            index: number,
-                            array: string[]
-                        ) => array.indexOf(orgUnit) === index
-                    ) || []
-                || []);
+            if (event?.length) {
+                const currentAcademicYearEnrollment = teis?.[0]?.enrollments?.find((enrollment: any) =>
+                    enrollment?.enrollment == event?.[0]?.enrollment)
+                const ouName = await getOrgUnitNames([event?.[0]?.orgUnit]);
+                setEvents(formatEnrollmentEvents(currentAcademicYearEnrollment || {}, ouName));
+            }
+
+
 
         } catch (error) {
             console.error('Error fetching student profile:', error);
@@ -211,20 +225,16 @@ export function useGetProfile() {
     };
 
     useEffect(() => {
-        if (profileDetailsState?.trackedEntity === trackedEntity) {
-            return;
-        }
-
         getProfile();
-    }, [trackedEntity]);
+    }, [trackedEntity, academicYear, refetch]);
 
     return {
         studentName,
-        loading,
+        loading: loading || orgUnitLoading,
         trackedEntity,
         identityCard,
         attributes,
         fields,
-        events: formatEnrollmentEvents(profileDetailsState?.enrollments?.[0] || {}, orgUnitNames),
+        events,
     };
 }

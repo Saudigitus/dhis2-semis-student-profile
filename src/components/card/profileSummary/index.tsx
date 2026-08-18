@@ -10,7 +10,7 @@ import useGetSelectedKeys from "../../../hooks/config/useGetSelectedKeys";
 import { useRecoilValue } from "recoil";
 import { SchoolCalendarData } from "dhis2-semis-components";
 import { academicYearPeriod } from "../../../utils/academicYearPeriod/getAcademicYearPeriod";
-import { Center, CircularLoader } from "@dhis2/ui";
+import Loader from "../../../components/loader/Loader";
 
 type AttributeItem = {
     id: string;
@@ -177,17 +177,8 @@ const SumarryCardComponent = ({
         );
     }, [headers, rows]);
 
-    const loading =
-        loadingIndicators ||
-        loadingAnalytics;
+    const loading = loadingIndicators || loadingAnalytics;
 
-    if (loading) {
-        return (
-            <Center>
-                <CircularLoader small />
-            </Center>
-        );
-    }
 
     if (error) {
         return (
@@ -217,6 +208,7 @@ const SumarryCardComponent = ({
                             indicator.displayName
                         }
                         variant="info"
+                        loader={loading ? <Loader /> : null}
                     />
                 )
             )}

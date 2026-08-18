@@ -7,7 +7,7 @@ import { WithBorder, WithPadding, CustomForm } from 'dhis2-semis-components';
 function ModalContent(props: ModalContentInterface) {
     const { baseUrl } = useConfig()
     const { formFields, onChange, onSubmit, onCancel, initialValues, loading, formValues = {}, setFormValues, trackedEntity } = props;
-
+    
     return (
         <WithPadding>
             <WithBorder type='all'>
