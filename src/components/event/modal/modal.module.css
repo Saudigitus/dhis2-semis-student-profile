@@ -171,6 +171,9 @@
 .modalHeader {
     padding: 6px 16px;
     background: #fafbfc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     border: 1px solid #f0f2f5 !important;
 }
 

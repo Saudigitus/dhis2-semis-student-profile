@@ -38,6 +38,12 @@ const EventModal: FunctionComponent<EventModalProps> = (props) => {
                         </div>
                     </div>
                 </div>
+                <div className={styles.content}>
+                    {selectedEvent?.dataValues?.length ?
+                        <span className={styles.label}>Details</span>
+                        : <span className={styles.label}>No Details</span>
+                    }
+                </div>
                 <ListComponent
                     i18n={i18n}
                     data={columns.map((column: any) => {
