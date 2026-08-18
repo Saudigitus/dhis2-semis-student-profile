@@ -74,6 +74,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                                 ?.filter(col => col?.visible && col?.type === VariablesTypes.Attribute)
                                                 ?.map((col) => ({
                                                     ...col,
+                                                    attribute: col?.id,
                                                     value: attributes?.find((attr: any) => attr?.attribute === col?.id)?.value || ""
                                                 }))
                                             :
