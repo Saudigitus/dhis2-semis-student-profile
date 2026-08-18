@@ -8,6 +8,7 @@ import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-
 import { SchoolCalendarData } from 'dhis2-semis-components';
 import { formatEnrollmentEvents, FormattedEvents } from '../../utils/profile/formatEnrollmentEvents';
 import { useOrgUnitName } from '../orgUnit/useOrgUnitName';
+import RefetchSchemaAtom from '../../schema/refetchSchema';
 
 type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
 type IdentityBadge = IdentityCard['badges'][number];
@@ -145,6 +146,7 @@ export function useGetProfile() {
     const { academicYear, school } = urlParameters
     const { dataStoreData } = useGetSelectedKeys();
     const [loading, setLoading] = useState<boolean>(false);
+    const refetch = useRecoilValue(RefetchSchemaAtom);
     const [events, setEvents] = useState<FormattedEvents>({});
     const [profileDetailsState, setProfileDetails] = useRecoilState(profileDetails);
     const schoolCalendarData = useRecoilValue(SchoolCalendarData);
@@ -196,8 +198,6 @@ export function useGetProfile() {
                 filter: [`${schoolCalendarData.academicYear}:in:${academicYear}`],
             })
 
-            // if (event?.length == 0) return;
-
             const teis = await getTeis({
                 program: dataStoreData.program,
                 trackedEntities: trackedEntity,
@@ -226,7 +226,7 @@ export function useGetProfile() {
 
     useEffect(() => {
         getProfile();
-    }, [trackedEntity, academicYear]);
+    }, [trackedEntity, academicYear, refetch]);
 
     return {
         studentName,

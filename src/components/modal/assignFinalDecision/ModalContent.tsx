@@ -4,9 +4,10 @@ import { ModalManagerInterface } from 'src/types/modal/ModalProps';
 import { Button, ButtonStrip, NoticeBox } from '@dhis2/ui';
 import { useGetEvents, useGetSectionTypeLabel, useShowAlerts, useUploadEvents, useUrlParams } from 'dhis2-semis-functions';
 import { profileDetails } from '../../../schema/profile/profile-details';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import useGetSelectedKeys from '../../../../../../libs/components/src/hooks/config/useGetSelectedKeys';
 import { format } from 'date-fns';
+import RefetchSchemaAtom from '../../../schema/refetchSchema';
 
 
 function ModalContent(props: ModalManagerInterface) {
@@ -15,6 +16,8 @@ function ModalContent(props: ModalManagerInterface) {
     const { sectionName } = useGetSectionTypeLabel();
     const { useQuery } = useUrlParams();
     const { uploadValues } = useUploadEvents()
+    const [refetch, setRefetch] = useRecoilState(RefetchSchemaAtom);
+
     const { getEvents } = useGetEvents()
     const academicYearFromUrl = useQuery.get("academicYear");
     const { dataStoreData } = useGetSelectedKeys();
@@ -110,6 +113,7 @@ function ModalContent(props: ModalManagerInterface) {
             .then(() => {
                 show({ message: `Successfully marked as ${finalDecision?.label} this ${sectionName.toLowerCase()}`, type: { success: true } })
                 setLoading(false);
+                setRefetch(!refetch)
                 setOpen(false)
             })
             .catch(() => {
