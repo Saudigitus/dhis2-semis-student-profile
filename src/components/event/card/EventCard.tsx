@@ -110,7 +110,7 @@ const EventCard = (props: EventCardProps) => {
                                     <ListComponent
                                         i18n={i18n}
                                         data={columns.map((column: any) => {
-                                            const dataValue = selectedEvent?.dataValues?.find((item: any) => item.dataElement === column.id || item.attribute === column.id)
+                                            const dataValue = event?.dataValues?.find((item: any) => item.dataElement === column.id || item.attribute === column.id)
 
                                             return {
                                                 value: dataValue?.value,
