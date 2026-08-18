@@ -4,7 +4,7 @@ import ProfileDetail from '../../components/profile-detail/ProfileDetail';
 import { useGetProfile } from '../../hooks/profile/useGetProfile';
 import TabPanel from "../../components/tabs/TabPanel";
 import ModalManager from "../../components/modal/editProfile/ModalManager";
-import { useBuildForm, useGetSectionTypeLabel } from 'dhis2-semis-functions';
+import { useBuildForm, useGetSectionTypeLabel, useUrlParams } from 'dhis2-semis-functions';
 import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
 import { profileFormFields } from '../../utils/constants/form/profileForm';
 import SumarryCardComponent from '../../components/card/profileSummary';
@@ -20,6 +20,9 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
     const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
+    const { useQuery } = useUrlParams();
+    const academicYearFromUrl = useQuery.get("academicYear");
+
 
     const handleEdit = useCallback(() => {
         setOpenEditModal(true);
@@ -69,7 +72,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                             </div>
 
                             <div className={styles.noRecordsContent}>
-                                <h3>No enrollment records for 2023</h3>
+                                <h3>No enrollment records for {academicYearFromUrl}</h3>
 
                                 <p>
                                     No enrollment information is available for this student
