@@ -201,7 +201,7 @@ export function useGetProfile() {
             const teis = await getTeis({
                 program: dataStoreData.program,
                 trackedEntities: trackedEntity,
-                fields: 'enrollments[*,!attributes],attributes',
+                fields: 'trackedEntity,enrollments[*,!attributes],attributes',
             } as any);
 
             if (teis?.[0]?.attributes) {

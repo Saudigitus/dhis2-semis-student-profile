@@ -5,16 +5,19 @@ import useGetSelectedKeys from "../../../hooks/config/useGetSelectedKeys";
 import { ModalComponent } from "dhis2-semis-components";
 import { profileUpdateBody } from "../../../utils/profile/formatProfileUpdateBody";
 import { useGetAttributes, useGetPatternCode, useSaveTei, useGetSectionTypeLabel, RulesEngine } from "dhis2-semis-functions";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { profileDetails } from "../../../schema/profile/profile-details";
+import RefetchSchemaAtom from "../../../schema/refetchSchema";
 
 function ModalManager(props: ModalManagerInterface) {
     const { saveTei, loading: saving } = useSaveTei();
     const { sectionName } = useGetSectionTypeLabel();
     const { program: programData, dataStoreData } = useGetSelectedKeys();
+    const [refetch, setRefetch] = useRecoilState(RefetchSchemaAtom);
     const { attributes = [] } = useGetAttributes({ programData: programData! });
     const { errorLoading, loadingCodes, generatedVariables } = useGetPatternCode();
     const { open, setOpen, formFields = [], formVariablesFields, i18n } = props;
+    const [initialValues, setInitialValues] = useState<{ [key: string]: any }>({});
     const profileDetailsState = useRecoilValue(profileDetails);
     const trackedEntity = profileDetailsState?.trackedEntity;
 
@@ -38,6 +41,7 @@ function ModalManager(props: ModalManagerInterface) {
                 attributesMap[attr.attribute] = attr.value;
             });
             setValues(attributesMap);
+            setInitialValues(attributesMap);
         }
     }, [open, profileDetailsState]);
 
@@ -73,6 +77,7 @@ function ModalManager(props: ModalManagerInterface) {
             },
             handleComplete: () => {
                 handleCloseModal();
+                setRefetch(!refetch)
             },
         });
     }
@@ -99,7 +104,7 @@ function ModalManager(props: ModalManagerInterface) {
                 formFields={updatedVariables}
                 trackedEntity={trackedEntity}
                 initialValues={{
-                    ...values,
+                    ...initialValues,
                     ...generatedVariables,
                 }}
             />

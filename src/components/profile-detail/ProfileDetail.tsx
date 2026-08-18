@@ -169,9 +169,9 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                 </div>
 
                 <ButtonStrip>
-                    {/* <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
+                    <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
                         {i18n.t('Edit')}
-                    </Button> */}
+                    </Button>
                     <div ref={moreMenuRef}>
                         <Button
                             small
