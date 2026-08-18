@@ -23,12 +23,17 @@ import {
     Block as IconDropout,
 } from "@mui/icons-material";
 import { D2I18n } from 'dhis2-semis-types';
-import { useFileResource } from 'dhis2-semis-functions';
+import { useFileResource, useSaveTei } from 'dhis2-semis-functions';
 import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/useGetProfile';
 import styles from './ProfileDetail.module.css';
 import useGetSelectedKeys from '../../../../../libs/components/src/hooks/config/useGetSelectedKeys';
 import ModalManager from '../modal/assignFinalDecision/ModalManager';
 import Loader from '../loader/Loader';
+import { useDataEngine } from '@dhis2/app-runtime';
+import { profileDetails } from '../../schema/profile/profile-details';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { getAttributes } from '../../utils/profile/getAttributes';
+import RefetchSchemaAtom from '../../schema/refetchSchema';
 
 type ProfileDetailProps = {
     i18n: D2I18n;
@@ -43,13 +48,11 @@ type ProfileDetailProps = {
     onDeleteRecord?: () => void;
 };
 
-const FILE_RESOURCE_QUERY = ({ } = {}) => ({
-    resource: 'fileResources',
-    params: {
-        fields: ['id', 'name', 'contentType', 'created', 'lastUpdated'],
-        paging: false,
-    },
-})
+const POSTFILERESOURCEMUTATION: any = {
+    resource: "fileResources",
+    data: ({ data }: any) => data,
+    type: "create"
+}
 
 function BadgeTag({ badge, i18n }: { badge: ResolvedBadge; i18n: D2I18n }) {
     const displayValue = badge.value ?? i18n.t('Not recorded');
@@ -105,6 +108,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
     } = props;
 
     const { program: programData, dataStoreData } = useGetSelectedKeys()
+    const engine = useDataEngine()
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const moreMenuRef = useRef<HTMLDivElement | null>(null);
     const [photoSrc, setPhotoSrc] = useState<string | null>(null);
@@ -113,6 +117,10 @@ export default function ProfileDetail(props: ProfileDetailProps) {
     const [openFinalDecisionModal, setOpenFinalDecisionModal] = useState<boolean>(false);
     const [finalDecision, setFinalDecision] = useState<object | null>(null);
     const fileInputRef = useRef(null)
+    const [refetch, setRefetch] = useRecoilState(RefetchSchemaAtom);
+    const [loader, setLoader] = useState(false);
+    const { saveTei, loading: saving } = useSaveTei();
+    const profileDetailsState = useRecoilValue(profileDetails);
 
 
     const title = fields?.title ?? i18n.t('Student Profile');
@@ -158,16 +166,26 @@ export default function ProfileDetail(props: ProfileDetailProps) {
         fileInputRef.current?.click()
     }
 
-    const handleImageChange = (event) => {
+    const handleImageChange = async (event: any) => {
+        setLoader(true)
         const file = event.target.files?.[0]
-
         if (!file) return
 
-        // Aqui podes fazer o upload da imagem
-        console.log('Selected image:', file)
+        const postFile = await engine.mutate(POSTFILERESOURCEMUTATION, { variables: { data: { file: file } } }) as unknown as any
 
-        // Permite selecionar novamente a mesma imagem
-        event.target.value = ''
+        const fileId = postFile.response.fileResource.id
+
+        await saveTei({
+            data: getAttributes(profileDetailsState, fileId, canUploadImage),
+            messages: {
+                error: `${i18n.t("Could not conclude the operation.")}`,
+                sucess: `${i18n.t("Profile updated successfully")}`,
+            },
+            handleComplete: () => {
+                window.location.reload()
+                setLoader(false)
+            },
+        });
     }
 
     return (
@@ -180,7 +198,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                             }`}
                         onClick={canUploadImage ? handleImageClick : undefined}
                     >
-                        {photoLoading ? (
+                        {photoLoading || loader ? (
                             <CircularLoader small />
                         ) : photoSrc ? (
                             <img
