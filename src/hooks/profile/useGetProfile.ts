@@ -148,7 +148,7 @@ export function useGetProfile() {
     const [events, setEvents] = useState<FormattedEvents>({});
     const [profileDetailsState, setProfileDetails] = useRecoilState(profileDetails);
     const schoolCalendarData = useRecoilValue(SchoolCalendarData);
-    const { orgUnitNames, getOrgUnitNames, loading: orgUnitLoading, } = useOrgUnitName()
+    const { getOrgUnitNames, loading: orgUnitLoading, } = useOrgUnitName()
 
 
     const trackedEntity = location.pathname.split('/').filter(Boolean).pop();
@@ -178,6 +178,7 @@ export function useGetProfile() {
     );
 
     const getProfile = async () => {
+        setEvents({});
         if (!trackedEntity || !dataStoreData?.program) return;
 
         try {
@@ -186,7 +187,7 @@ export function useGetProfile() {
 
             const event = await getEvents({
                 program: dataStoreData.program,
-                trackedEntities: trackedEntity,
+                // trackedEntities: trackedEntity,
                 orgUnit: school!,
                 orgUnitMode: 'SELECTED',
                 trackedEntity: trackedEntity,
@@ -195,12 +196,11 @@ export function useGetProfile() {
                 filter: [`${schoolCalendarData.academicYear}:in:${academicYear}`],
             })
 
-            // if (!event?.length) return;
+            // if (event?.length == 0) return;
 
             const teis = await getTeis({
                 program: dataStoreData.program,
                 trackedEntities: trackedEntity,
-                // trackedEntity: trackedEntity,
                 fields: 'enrollments[*,!attributes],attributes',
             } as any);
 
@@ -209,14 +209,10 @@ export function useGetProfile() {
             }
 
             if (event?.length) {
-                await getOrgUnitNames(
-                    profileDetailsState?.enrollments?.map((enrollment: any) => enrollment.orgUnit)
-                        ?.filter(Boolean)
-                        ?.filter((orgUnit: string, index: number, array: string[]) => array.indexOf(orgUnit) === index
-                        ) || []
-                    || []);
-
-                setEvents(formatEnrollmentEvents(profileDetailsState?.enrollments?.[0] || {}, orgUnitNames));
+                const currentAcademicYearEnrollment = teis?.[0]?.enrollments?.find((enrollment: any) =>
+                    enrollment?.enrollment == event?.[0]?.enrollment)
+                const ouName = await getOrgUnitNames([event?.[0]?.orgUnit]);
+                setEvents(formatEnrollmentEvents(currentAcademicYearEnrollment || {}, ouName));
             }
 
 

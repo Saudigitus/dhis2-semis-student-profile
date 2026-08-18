@@ -69,8 +69,6 @@ const EventCard = (props: EventCardProps) => {
         setPage(Math.min(Math.max(target, 1), pageCount))
     }
 
-    console.log(props)
-
     return (
         <div className={styles.container} ref={containerRef}>
             {loading ? (
