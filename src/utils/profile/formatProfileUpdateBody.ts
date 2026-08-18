@@ -26,6 +26,9 @@ export const profileUpdateBody = ({
                 if (value !== null && value !== undefined) {
                     attributes.push({ attribute: attribute.id, value });
                 }
+                else {
+                    attributes.push({ attribute: attribute.id, value: "" });
+                }
             })
         }
     }
