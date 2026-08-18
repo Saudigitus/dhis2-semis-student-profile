@@ -11,6 +11,7 @@ import SumarryCardComponent from '../../components/card/profileSummary';
 import AcademicYearSelectorComponent from '../../components/chips';
 import styles from "./studentProfile.module.css";
 import { Center, CircularLoader } from '@dhis2/ui';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 
 export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) {
     const { loading, fields, attributes, events, trackedEntity } = useGetProfile();
@@ -43,8 +44,6 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
         console.log('[StudentProfile] Delete record requested');
     }, []);
 
-    console.log(events, "events")
-
     return (
         <div className={styles.wrapper}>
             <ProfileDetail
@@ -64,8 +63,19 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 loading ? <Center><CircularLoader /></Center> :
 
                     !Object.keys(events || {}).length && !loading ?
-                        <div className={styles.noRecords}>
-                            No enrollment records found for the selected academic year.
+                        <div className={styles.noRecordsCard}>
+                            <div className={styles.noRecordsIcon}>
+                                <EventNoteIcon color='primary' fontSize="large" />
+                            </div>
+
+                            <div className={styles.noRecordsContent}>
+                                <h3>No enrollment records for 2023</h3>
+
+                                <p>
+                                    No enrollment information is available for this student
+                                    in the selected academic year.
+                                </p>
+                            </div>
                         </div>
                         :
                         <div className={styles.profileSummary}>

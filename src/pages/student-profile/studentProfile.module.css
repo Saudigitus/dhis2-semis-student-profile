@@ -6,11 +6,59 @@
     margin-top: 10px;
 }
 
-.noRecords {
-    color: #999;
-    padding: 40px;
-    font-style: italic;
+.noRecordsCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* margin: 32px 36px; */
+    padding: 48px 32px;
+
+    min-height: 220px;
+
+    background: #ffffff;
+    border: 1px solid #d5ddeb;
+    border-radius: 8px;
+
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
     text-align: center;
+}
+
+.noRecordsIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+
+    margin-bottom: 20px;
+
+    border-radius: 50%;
+    background: #f1f6fb;
+    color: #2775bb;
+}
+
+.noRecordsContent {
+    max-width: 100%;
+}
+
+.noRecordsContent h3 {
+    margin: 0 0 8px;
+
+    color: #292f38;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.noRecordsContent p {
+    margin: 0;
+
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
 }
 
 .profileSummary{
