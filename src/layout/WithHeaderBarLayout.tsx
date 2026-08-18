@@ -23,11 +23,19 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
     }, [])
 
     const handleBack = () => {
-        const originModule = useQuery.get("module")
-        remove("tab")
-        remove("module")
-        navigate(`/semis/${originModule}${location?.search}`);
-    }
+        const originModule = useQuery.get("module");
+        const params = new URLSearchParams(location.search);
+
+        params.delete("module");
+        params.delete("tab");
+
+        remove("tab");
+        remove("module");
+
+        const search = params.toString();
+
+        navigate(`/semis/${originModule}${search ? `?${search}` : ""}`);
+    };
 
 
     if (loadingAcademicYear) {
