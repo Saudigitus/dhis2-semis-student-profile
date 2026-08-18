@@ -15,11 +15,6 @@ const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
 
     useEffect(() => {
         refetch()
-
-        return () => {
-            remove("tab")
-            remove("module")
-        }
     }, [])
 
     const handleBack = () => {
