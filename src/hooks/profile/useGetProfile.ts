@@ -78,7 +78,7 @@ export function getFinalResultStatusValue(
     return finalResultEvent?.dataValues?.find(
         ({ dataElement }: any) =>
             dataElement === finalResult?.status,
-    )?.value;
+    );
 }
 
 export function resolveTextFromConfig(
@@ -96,7 +96,7 @@ export function resolveTextFromConfig(
 export function resolveBadges(
     attributes: AttributeListItem[] | undefined,
     badges: IdentityBadge[] | undefined,
-    finalResultStatus?: string,
+    finalResultStatus?: any,
 ): ResolvedBadge[] {
     if (!badges?.length) return [];
 
@@ -104,9 +104,11 @@ export function resolveBadges(
         .sort((a, b) => a.order - b.order)
         .map((badge) => {
             let value: string | undefined;
+            let attributeId = badge.variable;
 
             if (badge.source === 'FINAL_RESULT_STATUS') {
-                value = finalResultStatus;
+                value = finalResultStatus?.value;
+                attributeId = finalResultStatus?.dataElement;
             } else if (badge.source === 'ATTRIBUTE' && badge.variable) {
                 value = getAttributeValue(attributes, badge.variable);
             }
@@ -116,7 +118,7 @@ export function resolveBadges(
                 source: badge.source,
                 styled: badge.styled,
                 value,
-                attributeId: badge.variable,
+                attributeId: attributeId
             };
         });
 }
