@@ -20,7 +20,7 @@ export type ResolvedBadge = {
     source: string;
     styled: boolean;
     value?: string;
-    attributeId?: string;
+    metadataId?: string;
 };
 
 export type ResolvedProfileFields = {
