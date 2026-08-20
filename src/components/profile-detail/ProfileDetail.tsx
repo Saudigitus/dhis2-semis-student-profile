@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
     Button,
     ButtonStrip,
     Card,
     CircularLoader,
+    IconEdit24,
+    IconLock24,
     Label,
     Menu,
     Popover,
     Tag,
+    Tooltip,
 } from '@dhis2/ui';
 import {
     EditDocument as IconEdit,
@@ -20,13 +23,24 @@ import {
     Block as IconDropout,
 } from "@mui/icons-material";
 import { D2I18n, ProgramConfig } from 'dhis2-semis-types';
-import { getOptionStyle, useFileResource } from 'dhis2-semis-functions';
+import { getOptionStyle, useFileResource, useSaveTei } from 'dhis2-semis-functions';
 import type { ResolvedProfileFields, ResolvedBadge } from '../../hooks/profile/useGetProfile';
 import styles from './ProfileDetail.module.css';
 import useGetSelectedKeys from '../../../../../libs/components/src/hooks/config/useGetSelectedKeys';
 import ModalManager from '../modal/assignFinalDecision/ModalManager';
 import Loader from '../loader/Loader';
 import { getDisplayName } from 'dhis2-semis-components';
+import { useDataEngine } from '@dhis2/app-runtime';
+import { profileDetails } from '../../schema/profile/profile-details';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { getAttributes } from '../../utils/profile/getAttributes';
+import RefetchSchemaAtom from '../../schema/refetchSchema';
+
+const POSTFILERESOURCEMUTATION: any = {
+    resource: "fileResources",
+    data: ({ data }: any) => data,
+    type: "create"
+}
 
 type ProfileDetailProps = {
     i18n: D2I18n;
@@ -98,11 +112,19 @@ export default function ProfileDetail(props: ProfileDetailProps) {
     const { program: programData, dataStoreData } = useGetSelectedKeys()
     const [moreMenuOpen, setMoreMenuOpen] = useState<boolean>(false);
     const moreMenuRef = React.useRef<HTMLDivElement | null>(null);
+    const engine = useDataEngine()
     const [photoSrc, setPhotoSrc] = useState<string | null>(null);
     const [photoLoading, setPhotoLoading] = useState<boolean>(false);
     const { getFileResource } = useFileResource();
     const [openFinalDecisionModal, setOpenFinalDecisionModal] = useState<boolean>(false);
     const [finalDecision, setFinalDecision] = useState<object | null>(null);
+    const fileInputRef = useRef(null);
+    const [refetch, setRefetch] = useRecoilState(RefetchSchemaAtom);
+    const [loader, setLoader] = useState(false);
+    const { saveTei, loading: saving } = useSaveTei();
+    const profileDetailsState = useRecoilValue(profileDetails);
+
+    const canUploadImage = dataStoreData.profile?.identityCard?.photo?.attribute
 
     const title = fields?.title ?? i18n.t('Student Profile');
     const subtitle = fields?.subtitle ?? '—';
@@ -140,18 +162,76 @@ export default function ProfileDetail(props: ProfileDetailProps) {
         setFinalDecision(decision);
     }
 
+    const handleImageClick = () => {
+        if (!canUploadImage) return
+
+        fileInputRef.current?.click()
+    }
+
+    const handleImageChange = async (event: any) => {
+        setLoader(true)
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        const postFile = await engine.mutate(POSTFILERESOURCEMUTATION, { variables: { data: { file: file } } }) as unknown as any
+
+        const fileId = postFile.response.fileResource.id
+
+        await saveTei({
+            data: getAttributes(profileDetailsState, fileId, canUploadImage),
+            messages: {
+                error: `${i18n.t("Could not conclude the operation.")}`,
+                sucess: `${i18n.t("Profile updated successfully")}`,
+            },
+            handleComplete: () => {
+                window.location.reload()
+                setLoader(false)
+            },
+        });
+    }
+
     return (
         <Card className={styles.profileCard}>
             <div className={styles.profileHeader}>
                 <div className={styles.profileInfo}>
-                    <div className={styles.avatarContainer}>
-                        {photoLoading ? (
+                    <div
+                        className={`${styles.avatarContainer} ${canUploadImage ? styles.editable : styles.disabled
+                            }`}
+                        onClick={canUploadImage ? handleImageClick : undefined}
+                    >
+                        {photoLoading || loader ? (
                             <CircularLoader small />
                         ) : photoSrc ? (
-                            <img src={photoSrc} alt={title} className={styles.photo} />
+                            <img
+                                src={photoSrc}
+                                alt={title}
+                                className={styles.photo}
+                            />
                         ) : (
-                            <IconUser sx={{ color: '#1E6194', fontSize: 28 }} />
+                            <IconUser
+                                sx={{ color: '#1E6194', fontSize: 28 }}
+                            />
                         )}
+
+                        {canUploadImage ? (
+                            <div className={styles.editOverlay}>
+                                <IconEdit24 />
+                            </div>
+                        ) : (
+                            <Tooltip content={i18n.t("You can't upload/change a photo")}>
+                                <div className={styles.disabledIndicator}>
+                                    <IconLock24 />
+                                </div>
+                            </Tooltip>
+                        )}
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            style={{ display: 'none' }}
+                        />
                     </div>
                     {
                         loading ?
