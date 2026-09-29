@@ -5,13 +5,14 @@ import { useGetProfile } from "../hooks/profile/useGetProfile"
 import { useDataStore } from "../hooks/wrapper/useDataStore"
 import { useEffect } from "react"
 import { useUrlParams } from "dhis2-semis-functions"
+import { D2I18n } from 'dhis2-semis-types'
 
-const WithHeaderBarLayout = ({ baseUrl }: { baseUrl: string }) => {
+const WithHeaderBarLayout = ({ baseUrl, i18n }: { baseUrl: string, i18n: D2I18n }) => {
     const navigate = useNavigate()
     const location = useLocation()
     const { remove, useQuery } = useUrlParams()
     const { studentName, loading } = useGetProfile()
-    const { loading: loadingAcademicYear, refetch } = useDataStore()
+    const { loading: loadingAcademicYear, refetch } = useDataStore(i18n)
 
     useEffect(() => {
         refetch()

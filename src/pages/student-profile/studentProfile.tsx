@@ -19,7 +19,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     const { sectionName } = useGetSectionTypeLabel();
     const { formData } = useBuildForm({ dataStoreData, programData: program, module: Modules.Enrollment });
     const [openEditModal, setOpenEditModal] = useState<boolean>(false);
-    const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName! });
+    const enrollmentFormFields = profileFormFields({ formFieldsData: formData, sectionName: sectionName!, i18n });
     const { useQuery } = useUrlParams();
     const academicYearFromUrl = useQuery.get("academicYear");
 
@@ -61,7 +61,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 onMarkAsDropout={handleMarkAsDropout}
                 onDeleteRecord={handleDeleteRecord}
             />
-            <AcademicYearSelectorComponent />
+            <AcademicYearSelectorComponent i18n={i18n} />
             {
                 loading ? <Center><CircularLoader /></Center> :
 
@@ -72,17 +72,17 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                             </div>
 
                             <div className={styles.noRecordsContent}>
-                                <h3>No enrollment records for {academicYearFromUrl}</h3>
+                                <h3>{i18n.t('No enrollment records for {{year}}', { year: academicYearFromUrl || '' })}</h3>
 
                                 <p>
-                                    No enrollment information is available for this student
-                                    in the selected academic year.
+                                    {i18n.t('No enrollment information is available for this student in the selected academic year.')}
                                 </p>
                             </div>
                         </div>
                         :
                         <div className={styles.profileSummary}>
                             <SumarryCardComponent
+                                i18n={i18n}
                                 attributeValues={attributes}
                             />
                             <TabPanel
