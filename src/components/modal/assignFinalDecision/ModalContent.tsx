@@ -11,7 +11,7 @@ import RefetchSchemaAtom from '../../../schema/refetchSchema';
 
 
 function ModalContent(props: ModalManagerInterface) {
-    const { finalDecision, setOpen }: any = props
+    const { finalDecision, setOpen, i18n }: any = props
     const profileDetailsState = useRecoilValue(profileDetails);
     const { sectionName } = useGetSectionTypeLabel();
     const { useQuery } = useUrlParams();
@@ -111,7 +111,7 @@ function ModalContent(props: ModalManagerInterface) {
         }
         await uploadValues({ trackedEntities: teis }, 'COMMIT', 'CREATE_AND_UPDATE')
             .then(() => {
-                show({ message: `Successfully marked as ${finalDecision?.label} this ${sectionName.toLowerCase()}`, type: { success: true } })
+                show({ message: i18n.t('Successfully marked this {{section}} as {{decision}}', { section: sectionName.toLowerCase(), decision: finalDecision?.label }), type: { success: true } })
                 setLoading(false);
                 setRefetch(!refetch)
                 setOpen(false)
@@ -119,7 +119,7 @@ function ModalContent(props: ModalManagerInterface) {
             .catch(() => {
                 setLoading(false);
                 show({
-                    message: `Could not update final decision for this ${sectionName.toLowerCase()}`,
+                    message: i18n.t('Could not update final decision for this {{section}}', { section: sectionName.toLowerCase() }),
                     type: { critical: true }
                 });
                 setTimeout(hide, 5000);
@@ -133,10 +133,9 @@ function ModalContent(props: ModalManagerInterface) {
                 <WithPadding>
                     < NoticeBox
                         warning
-                        title={`Are you sure you want to mark as ${finalDecision?.label} this 
-                    ${sectionName.toLowerCase()}?`}
+                        title={i18n.t('Are you sure you want to mark this {{section}} as {{decision}}?', { section: sectionName.toLowerCase(), decision: finalDecision?.label })}
                     >
-                        This will finalize the student's enrollment and record the selected final decision.
+                        {i18n.t("This will finalize the student's enrollment and record the selected final decision.")}
                     </NoticeBox>
 
                 </WithPadding>
@@ -150,7 +149,7 @@ function ModalContent(props: ModalManagerInterface) {
                     type="button"
                     className="dhis2-uicore-button dhis2-uicore-button--primary"
                 >
-                    Confirm
+                    {i18n.t('Confirm')}
                 </Button>
                 <Button
                     disabled={loading}
@@ -158,7 +157,7 @@ function ModalContent(props: ModalManagerInterface) {
                     className="dhis2-uicore-button dhis2-uicore-button--secondary"
                     onClick={props.setOpen.bind(null, false)}
                 >
-                    Cancel
+                    {i18n.t('Cancel')}
                 </Button>
             </ButtonStrip>
         </WithPadding>

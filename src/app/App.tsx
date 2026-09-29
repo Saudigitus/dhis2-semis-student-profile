@@ -4,7 +4,7 @@ import { D2I18n } from 'dhis2-semis-types'
 import translation from '../locales/index'
 
 const App = ({ i18n, baseUrl }: { i18n: D2I18n, baseUrl: string }) => {
-    const language = i18n == undefined ? translation : i18n
+    const language = i18n ?? (translation as unknown as D2I18n)
 
     return (
         <Router baseUrl={baseUrl} i18n={language} />

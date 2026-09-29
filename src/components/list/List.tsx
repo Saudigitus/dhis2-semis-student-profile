@@ -21,7 +21,7 @@ const ListComponent: FunctionComponent<ListProps> = (props) => {
 
     if (loading) {
         return (
-            <Loader />
+            <Loader i18n={i18n} />
         )
     }
 

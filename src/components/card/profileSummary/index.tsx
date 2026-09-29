@@ -11,6 +11,7 @@ import { useRecoilValue } from "recoil";
 import { SchoolCalendarData } from "dhis2-semis-components";
 import { academicYearPeriod } from "../../../utils/academicYearPeriod/getAcademicYearPeriod";
 import Loader from "../../../components/loader/Loader";
+import { D2I18n } from 'dhis2-semis-types';
 
 type AttributeItem = {
     id: string;
@@ -32,8 +33,10 @@ function getUniqueRequiredAttributes(
 
 const SumarryCardComponent = ({
     attributeValues,
+    i18n,
 }: {
     attributeValues: any;
+    i18n: D2I18n;
 }) => {
     const { program } = useGetSelectedKeys();
 
@@ -183,7 +186,7 @@ const SumarryCardComponent = ({
     if (error) {
         return (
             <div>
-                Error loading analytics
+                {i18n.t('Error loading analytics')}
             </div>
         );
     }
@@ -202,13 +205,13 @@ const SumarryCardComponent = ({
                         value={
                             latestRow[
                             indicator.id
-                            ] ?? "N/A"
+                            ] ?? i18n.t("N/A")
                         }
                         label={
                             indicator.displayName
                         }
                         variant="info"
-                        loader={loading ? <Loader /> : null}
+                        loader={loading ? <Loader i18n={i18n} /> : null}
                     />
                 )
             )}

@@ -3,12 +3,12 @@ import styles from './card.module.css'
 import { useState, useEffect, useRef } from 'react'
 import Loader from '../../../components/loader/Loader'
 import ListComponent from '../../../components/list/List'
-import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
+import { CustomAttributeProps, D2I18n, ProgramConfig } from 'dhis2-semis-types'
 import EventModal from '../modal/EventModal'
 import { format } from 'date-fns'
 
 interface EventCardProps {
-    i18n?: any,
+    i18n: D2I18n,
     data?: any[],
     title?: string
     loading?: boolean,
@@ -72,10 +72,10 @@ const EventCard = (props: EventCardProps) => {
     return (
         <div className={styles.container} ref={containerRef}>
             {loading ? (
-                <Loader />
+                <Loader i18n={i18n} />
             ) : !data?.length ? (
                 <div className={styles.empty}>
-                    {emptyMessage}
+                    {i18n.t(emptyMessage)}
                 </div>
             ) : (
                 <>
@@ -87,14 +87,14 @@ const EventCard = (props: EventCardProps) => {
                             >
                                 <div className={styles.cardHeader}>
                                     <div>
-                                        <div className={styles.stage}>Occurred at</div>
+                                        <div className={styles.stage}>{i18n.t('Occurred at')}</div>
                                         <div className={styles.date}>{format(new Date(event?.occurredAt), 'yyyy-MM-dd')}</div>
                                     </div>
 
                                     <div className={styles.cardHeaderRight}>
                                         <span className={styles.value}>{event?.orgUnitName || event?.orgUnit}</span>
                                         <div className={`${styles.status} ${event?.status === 'COMPLETED' ? styles.completed : styles.active}`}>
-                                            {event?.status}
+                                            {i18n.t(event?.status || '')}
                                         </div>
                                     </div>
                                 </div>
@@ -102,8 +102,8 @@ const EventCard = (props: EventCardProps) => {
 
                                 <div className={styles.content}>
                                     {event?.dataValues?.length ?
-                                        <span className={styles.label}>Details</span>
-                                        : <span className={styles.label}>No Details</span>
+                                        <span className={styles.label}>{i18n.t('Details')}</span>
+                                        : <span className={styles.label}>{i18n.t('No Details')}</span>
                                     }
                                 </div>
                                 {event?.dataValues?.length ?
@@ -129,23 +129,23 @@ const EventCard = (props: EventCardProps) => {
                     {total > 1 && (
                         <div className={styles.pagination}>
                             <span className={styles.paginationInfo}>
-                                Showing{' '}
+                                {i18n.t('Showing')}{' '}
                                 {(page - 1) * pageSize + 1}-
                                 {Math.min(page * pageSize, total)}{' '}
-                                of {total}
+                                {i18n.t('of')} {total}
                             </span>
 
                             <div className={styles.paginationActions}>
                                 <Button small disabled={page === 1} onClick={() => goToPage(page - 1)}>
-                                    Previous
+                                    {i18n.t('Previous')}
                                 </Button>
 
                                 <span className={styles.pageInfo}>
-                                    Page {page} of {pageCount}
+                                    {i18n.t('Page {{page}} of {{count}}', { page, count: pageCount })}
                                 </span>
 
                                 <Button small disabled={page === pageCount} onClick={() => goToPage(page + 1)}>
-                                    Next
+                                    {i18n.t('Next')}
                                 </Button>
                             </div>
                         </div>

@@ -1,7 +1,8 @@
 import { FunctionComponent } from "react";
+import { D2I18n } from 'dhis2-semis-types';
 
 
-const Loader: FunctionComponent = () => {
+const Loader: FunctionComponent<{ i18n: D2I18n }> = ({ i18n }) => {
     return (
         <div style={{
             padding: 24,
@@ -12,7 +13,7 @@ const Loader: FunctionComponent = () => {
             alignItems: 'center',
             justifyContent: 'center',
         }}>
-            Loading...
+            {i18n.t('Loading...')}
         </div >
     );
 }

@@ -235,7 +235,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                     </div>
                     {
                         loading ?
-                            <Loader />
+                            <Loader i18n={i18n} />
                             :
                             <div className={styles.studentDetails}>
                                 <h2 className={styles.studentName}>{title}</h2>
@@ -260,7 +260,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                             disabled={loading}
                             icon={<IconMore />}
                             onClick={() => setMoreMenuOpen((open) => !open)}
-                            aria-label="More actions"
+                            aria-label={i18n.t('More actions')}
                         />
                     </div>
                     {moreMenuOpen && (
@@ -277,7 +277,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                                             onClick={() => onAssignFinalDecision(option)}
                                         >
                                             <span style={{ color: option?.style?.color }}>
-                                                Mark student as {option?.label}
+                                                {i18n.t('Mark student as {{decision}}', { decision: option?.label })}
                                             </span>
                                         </MenuItem>
                                     ))

@@ -5,8 +5,8 @@ import { useUrlParams } from "dhis2-semis-functions";
 import { Button, Menu, MenuItem, Popover } from "@dhis2/ui";
 
 const AcademicYearSelector = (props: AcademicYearSelectorProps) => {
-    const { onChange, value, years, className,
-        label = "Academic year:", maxVisible = 5 } = props;
+    const { onChange, value, years, className, i18n,
+        label = i18n.t("Academic year:"), maxVisible = 5 } = props;
 
     const { add, useQuery } = useUrlParams();
     const academicYearFromUrl = useQuery.get("academicYear");
@@ -81,7 +81,7 @@ const AcademicYearSelector = (props: AcademicYearSelectorProps) => {
                                 small
                                 onClick={() => setMoreMenuOpen((open) => !open)}
                             >
-                                more
+                                {i18n.t('More')}
                             </Button>
                         </div>
 

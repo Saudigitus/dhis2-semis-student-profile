@@ -5,9 +5,10 @@ import { useRecoilValue } from 'recoil';
 import { SchoolCalendarData } from "dhis2-semis-components";
 import { academicYear } from '../../utils/profile/formatAcademicYear';
 import { useUrlParams } from "dhis2-semis-functions";
+import { D2I18n } from 'dhis2-semis-types';
 
 
-const AcademicYearSelectorComponent = () => {
+const AcademicYearSelectorComponent = ({ i18n }: { i18n: D2I18n }) => {
     const academicYearDataStore: any = useRecoilValue(SchoolCalendarData)
     const academicYearOptions: YearOption[] = academicYear(academicYearDataStore?.schoolCalendar)
     const { add, useQuery } = useUrlParams();
@@ -21,6 +22,7 @@ const AcademicYearSelectorComponent = () => {
 
     return (
         <AcademicYearSelector
+            i18n={i18n}
             years={academicYearOptions}
             value={selectedYear}
             onChange={setSelectedYear}

@@ -2,12 +2,12 @@ import { Button } from '@dhis2/ui'
 import styles from './table.module.css'
 import { useEffect, useMemo, useState } from 'react'
 import { getDisplayName } from 'dhis2-semis-components'
-import { CustomAttributeProps, ProgramConfig } from 'dhis2-semis-types'
+import { CustomAttributeProps, D2I18n, ProgramConfig } from 'dhis2-semis-types'
 import EventModal from '../modal/EventModal'
 import { RemoveRedEye } from '@mui/icons-material'
 
 interface EventTableProps {
-    i18n?: any,
+    i18n: D2I18n,
     data: any[],
     title?: string
     pageSize?: number
@@ -46,6 +46,7 @@ const EventTable = (props: EventTableProps) => {
     const tableHeaders = utilsColumns
         ?.concat(columns)
         ?.concat({ id: 'details', visible: true, displayName: 'Details', })
+        ?.map(column => ({ ...column, displayName: utilsColumns.some(item => item.id === column.id) || column.id === 'details' ? i18n.t(column.displayName) : column.displayName }))
 
     useEffect(() => {
         if (page > pageCount) {
@@ -75,7 +76,7 @@ const EventTable = (props: EventTableProps) => {
     if (loading) {
         return (
             <div className={styles.loading}>
-                Loading...
+                {i18n.t('Loading...')}
             </div>
         )
     }
@@ -83,7 +84,7 @@ const EventTable = (props: EventTableProps) => {
     if (!data?.length) {
         return (
             <div className={styles.empty}>
-                {emptyMessage}
+                {i18n.t(emptyMessage)}
             </div>
         )
     }
@@ -106,7 +107,7 @@ const EventTable = (props: EventTableProps) => {
 
                 {currentData.length === 0 ? (
                     <div className={styles.empty}>
-                        {emptyMessage}
+                        {i18n.t(emptyMessage)}
                     </div>
                 ) : (
                     currentData.map((row, rowIndex) => (
@@ -126,7 +127,7 @@ const EventTable = (props: EventTableProps) => {
                                         >
                                             {
                                                 column?.id !== 'details' ?
-                                                    value ?? 'Not recorded'
+                                                    value ?? i18n.t('Not recorded')
                                                     :
                                                     <Button small secondary onClick={() => setSelectedEvent(row)}>
                                                         ...
@@ -144,26 +145,26 @@ const EventTable = (props: EventTableProps) => {
             {data.length > 0 && (
                 <div className={styles.pagination}>
                     <div className={styles.paginationInfo}>
-                        Showing{' '}
+                        {i18n.t('Showing')}{' '}
                         {(page - 1) * pageSize + 1}-
                         {Math.min(
                             page * pageSize,
                             data.length
                         )}{' '}
-                        of {data.length}
+                        {i18n.t('of')} {data.length}
                     </div>
 
                     <div className={styles.paginationActions}>
                         <Button small disabled={page === 1} onClick={handlePrevious}>
-                            Previous
+                            {i18n.t('Previous')}
                         </Button>
 
                         <span className={styles.pageInfo}>
-                            Page {page} of {pageCount}
+                            {i18n.t('Page {{page}} of {{count}}', { page, count: pageCount })}
                         </span>
 
                         <Button small disabled={page === pageCount} onClick={handleNext}>
-                            Next
+                            {i18n.t('Next')}
                         </Button>
                     </div>
                 </div>
