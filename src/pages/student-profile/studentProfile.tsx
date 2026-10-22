@@ -7,7 +7,7 @@ import ModalManager from "../../components/modal/editProfile/ModalManager";
 import { useBuildForm, useGetSectionTypeLabel, useUrlParams } from 'dhis2-semis-functions';
 import useGetSelectedKeys from '../../hooks/config/useGetSelectedKeys';
 import { profileFormFields } from '../../utils/constants/form/profileForm';
-import SumarryCardComponent from '../../components/card/profileSummary';
+import RecordsSummary from '../../components/card/profileSummary/RecordsSummary';
 import AcademicYearSelectorComponent from '../../components/chips';
 import styles from "./studentProfile.module.css";
 import { Center, CircularLoader } from '@dhis2/ui';
@@ -60,6 +60,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                 onExportRecord={handleExportRecord}
                 onMarkAsDropout={handleMarkAsDropout}
                 onDeleteRecord={handleDeleteRecord}
+                hasEnrollment={Object.keys(events || {}).length > 0}
             />
             <AcademicYearSelectorComponent i18n={i18n} />
             {
@@ -81,10 +82,7 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
                         </div>
                         :
                         <div className={styles.profileSummary}>
-                            <SumarryCardComponent
-                                i18n={i18n}
-                                attributeValues={attributes}
-                            />
+                            <RecordsSummary i18n={i18n} events={events} />
                             <TabPanel
                                 i18n={i18n}
                                 events={events}

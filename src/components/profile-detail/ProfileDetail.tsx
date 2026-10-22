@@ -53,7 +53,13 @@ type ProfileDetailProps = {
     onExportRecord?: () => void;
     onMarkAsDropout?: () => void;
     onDeleteRecord?: () => void;
+    hasEnrollment?: boolean;
 };
+
+// Same colour for the same person everywhere, when there is no photo.
+const AVATAR_COLOURS = ['#2c6693', '#7b4f9d', '#1f7a8c', '#a3542a', '#3d7a3a', '#9c3b5a'];
+const avatarColour = (id = '') => AVATAR_COLOURS[id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % AVATAR_COLOURS.length];
+const initialsOf = (name = '') => name.split(' ').filter(Boolean).slice(0, 2).map(word => word[0].toUpperCase()).join('');
 
 function BadgeTag({ badge, i18n, program }: { badge: ResolvedBadge; i18n: D2I18n, program: ProgramConfig }) {
     const displayValue = badge.value ?? i18n.t('Not recorded');
@@ -107,6 +113,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
         onExportRecord,
         onMarkAsDropout,
         onDeleteRecord,
+        hasEnrollment = false,
     } = props;
 
     const { program: programData, dataStoreData } = useGetSelectedKeys()
@@ -124,9 +131,9 @@ export default function ProfileDetail(props: ProfileDetailProps) {
     const { saveTei, loading: saving } = useSaveTei();
     const profileDetailsState = useRecoilValue(profileDetails);
 
-    const canUploadImage = dataStoreData.profile?.identityCard?.photo?.attribute
+    const canUploadImage = fields?.photoAttributeId
 
-    const title = fields?.title ?? i18n.t('Student Profile');
+    const title = fields?.title || i18n.t('No name');
     const subtitle = fields?.subtitle ?? '—';
     const photoAttribute = fields?.photoAttributeId;
     const badges = fields?.badges ?? [];
@@ -152,7 +159,8 @@ export default function ProfileDetail(props: ProfileDetailProps) {
             .catch(() => setPhotoLoading(false));
     }, [trackedEntity, photoAttribute, program]);
 
-    const finalDecisionOptions = programData?.programStages?.find((stage) => stage?.id == dataStoreData?.['final-result']?.programStage)
+    // "Mark as..." only for a year with an enrollment; there are no options when the final result is not set up.
+    const finalDecisionOptions = !hasEnrollment || (dataStoreData as any)?.['final-result']?.enabled === false ? [] : programData?.programStages?.find((stage) => stage?.id == dataStoreData?.['final-result']?.programStage)
         ?.programStageDataElements?.find((dataElement) => dataElement?.dataElement?.id == dataStoreData?.['final-result']
             ?.status)?.dataElement?.optionSet?.options
 
@@ -178,7 +186,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
         const fileId = postFile.response.fileResource.id
 
         await saveTei({
-            data: getAttributes(profileDetailsState, fileId, canUploadImage),
+            data: getAttributes(profileDetailsState, fileId, canUploadImage!),
             messages: {
                 error: `${i18n.t("Could not conclude the operation.")}`,
                 sucess: `${i18n.t("Profile updated successfully")}`,
@@ -207,6 +215,13 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                                 alt={title}
                                 className={styles.photo}
                             />
+                        ) : fields?.title ? (
+                            <span
+                                className={styles.photo}
+                                style={{ backgroundColor: avatarColour(trackedEntity), color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 700 }}
+                            >
+                                {initialsOf(fields.title)}
+                            </span>
                         ) : (
                             <IconUser
                                 sx={{ color: '#1E6194', fontSize: 28 }}
@@ -253,7 +268,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                     <Button small primary disabled={loading} onClick={onEdit} icon={<IconEdit sx={{ fontSize: 15 }} />}>
                         {i18n.t('Edit')}
                     </Button>
-                    <div ref={moreMenuRef}>
+                    {!!finalDecisionOptions?.length && <div ref={moreMenuRef}>
                         <Button
                             small
                             secondary
@@ -262,7 +277,7 @@ export default function ProfileDetail(props: ProfileDetailProps) {
                             onClick={() => setMoreMenuOpen((open) => !open)}
                             aria-label={i18n.t('More actions')}
                         />
-                    </div>
+                    </div>}
                     {moreMenuOpen && (
                         <Popover
                             reference={moreMenuRef}
