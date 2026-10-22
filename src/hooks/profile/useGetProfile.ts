@@ -4,14 +4,13 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useGetEvents, useGetTeis, useUrlParams } from 'dhis2-semis-functions';
 import useGetSelectedKeys from '../config/useGetSelectedKeys';
 import { profileDetails } from '../../schema/profile/profile-details';
-import type { SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
+import type { ProgramConfig, SchoolCalendarDataStoreRecord, selectedDataStoreKey } from 'dhis2-semis-types';
 import { SchoolCalendarData } from 'dhis2-semis-components';
 import { formatEnrollmentEvents, FormattedEvents } from '../../utils/profile/formatEnrollmentEvents';
 import { useOrgUnitName } from '../orgUnit/useOrgUnitName';
 import RefetchSchemaAtom from '../../schema/refetchSchema';
+import { isFinalResultEnabled } from '../../utils/profile/buildProfileLayout';
 
-type IdentityCard = NonNullable<selectedDataStoreKey['profile']>['identityCard'];
-type IdentityBadge = IdentityCard['badges'][number];
 
 export type AttributeListItem = { attribute: string; value: any };
 
@@ -20,7 +19,7 @@ export type ResolvedBadge = {
     source: string;
     styled: boolean;
     value?: string;
-    metadataId?: string;
+    attributeId?: string;
 };
 
 export type ResolvedProfileFields = {
@@ -81,62 +80,65 @@ export function getFinalResultStatusValue(
     );
 }
 
-export function resolveTextFromConfig(
+// Who the person is, from the program metadata (SEMIS-248), with the same rules as the mobile app.
+const TEXT_TYPES = ['TEXT', 'LONG_TEXT'];
+
+export function resolveIdentity(
+    program: ProgramConfig | undefined,
     attributes: AttributeListItem[] | undefined,
-    config: { attributes: string[]; separator: string } | undefined,
-    fallback?: string,
-): string {
-    if (!config?.attributes?.length) return fallback ?? '';
-    const values = config.attributes
-        .map((id) => getAttributeValue(attributes, id))
-        .filter(Boolean);
-    return values.length > 0 ? values.join(config.separator ?? ' ') : fallback ?? '';
-}
-
-export function resolveBadges(
-    attributes: AttributeListItem[] | undefined,
-    badges: IdentityBadge[] | undefined,
-    finalResultStatus?: any,
-): ResolvedBadge[] {
-    if (!badges?.length) return [];
-
-    return [...badges]
-        .sort((a, b) => a.order - b.order)
-        .map((badge) => {
-            let value: string | undefined;
-            let attributeId = badge.variable;
-
-            if (badge.source === 'FINAL_RESULT_STATUS') {
-                value = finalResultStatus?.value;
-                attributeId = finalResultStatus?.dataElement;
-            } else if (badge.source === 'ATTRIBUTE' && badge.variable) {
-                value = getAttributeValue(attributes, badge.variable);
-            }
-
-            return {
-                order: badge.order,
-                source: badge.source,
-                styled: badge.styled,
-                value,
-                attributeId: attributeId
-            };
-        });
-}
-
-export function resolveProfileFields(
-    attributes: AttributeListItem[] | undefined,
-    identityCard: IdentityCard | undefined,
-    finalResultStatus?: string,
-    fallback?: { trackedEntity?: string; displayName?: string },
+    finalResult?: { enabled: boolean; dataElement?: string; status?: any },
+    trackedEntity?: string,
 ): ResolvedProfileFields {
-    const safeAttributes = attributes ?? [];
+    const programAttributes = program?.programTrackedEntityAttributes ?? [];
+    const valueOf = (id?: string) => getAttributeValue(attributes, id);
+    const inList = programAttributes.filter((item) => item.displayInList);
+
+    // Name: text attributes shown in the list that are neither unique nor from an option set, in program order.
+    const name = inList
+        .filter(({ trackedEntityAttribute: attribute }) =>
+            TEXT_TYPES.includes(attribute?.valueType) && !attribute?.unique && !attribute?.optionSet)
+        .map(({ trackedEntityAttribute: attribute }) => valueOf(attribute?.id))
+        .filter(Boolean)
+        .join(' ');
+
+    // Identifier: the unique attribute shown in the list, else the first unique attribute.
+    const identifier = (inList.find(({ trackedEntityAttribute: attribute }) => attribute?.unique)
+        ?? programAttributes.find(({ trackedEntityAttribute: attribute }) => attribute?.unique))?.trackedEntityAttribute?.id;
+
+    const firstInList = inList.map(({ trackedEntityAttribute: attribute }) => valueOf(attribute?.id)).find(Boolean);
+
+    // Tags: attributes whose options all have a colour, and the final decision of the year.
+    const badges: ResolvedBadge[] = programAttributes
+        .filter(({ trackedEntityAttribute: attribute }) => {
+            const options = attribute?.optionSet?.options ?? [];
+            return options.length > 0 && options.every((option: any) => option?.style?.color);
+        })
+        .filter(({ trackedEntityAttribute: attribute }) => valueOf(attribute?.id))
+        .map(({ trackedEntityAttribute: attribute }, index) => ({
+            order: index,
+            source: 'ATTRIBUTE',
+            styled: true,
+            value: valueOf(attribute?.id),
+            attributeId: attribute?.id,
+        }));
+
+    if (finalResult?.enabled) {
+        badges.push({
+            order: badges.length,
+            source: 'FINAL_RESULT_STATUS',
+            styled: true,
+            value: finalResult.status?.value,
+            attributeId: finalResult.dataElement,
+        });
+    }
 
     return {
-        trackedEntity: fallback?.trackedEntity,
-        title: resolveTextFromConfig(safeAttributes, identityCard?.title, fallback?.displayName),
-        subtitle: resolveTextFromConfig(safeAttributes, identityCard?.subtitle, fallback?.trackedEntity),
-        photoAttributeId: identityCard?.photo?.attribute,
-        badges: resolveBadges(safeAttributes, identityCard?.badges, finalResultStatus),
+        trackedEntity,
+        title: name || firstInList || valueOf(identifier) || '',
+        subtitle: valueOf(identifier) ?? '',
+        photoAttributeId: programAttributes.find(({ trackedEntityAttribute: attribute }) => attribute?.valueType === 'IMAGE')
+            ?.trackedEntityAttribute?.id,
+        badges,
     };
 }
 
@@ -146,7 +148,7 @@ export function useGetProfile() {
     const { getEvents } = useGetEvents();
     const { urlParameters } = useUrlParams();
     const { academicYear, school } = urlParameters
-    const { dataStoreData } = useGetSelectedKeys();
+    const { dataStoreData, program } = useGetSelectedKeys();
     const [loading, setLoading] = useState<boolean>(false);
     const refetch = useRecoilValue(RefetchSchemaAtom);
     const [events, setEvents] = useState<FormattedEvents>({});
@@ -157,29 +159,22 @@ export function useGetProfile() {
 
     const trackedEntity = location.pathname.split('/').filter(Boolean).pop();
 
-    const identityCard = useMemo<IdentityCard | undefined>(
-        () => dataStoreData?.profile?.identityCard as IdentityCard | undefined,
-        [dataStoreData],
-    );
-
     const attributes = useMemo<AttributeListItem[]>(
         () => profileDetailsState?.attributes ?? [],
         [profileDetailsState],
     );
 
-    const studentName = useMemo(
-        () => resolveTextFromConfig(attributes, identityCard?.title, profileDetailsState?.displayName),
-        [attributes, identityCard, profileDetailsState?.displayName],
-    );
-
     const fields = useMemo<ResolvedProfileFields>(
         () =>
-            resolveProfileFields(attributes, identityCard, getFinalResultStatusValue(academicYear!, dataStoreData, profileDetailsState?.enrollments, schoolCalendarData), {
-                trackedEntity,
-                displayName: profileDetailsState?.displayName,
-            }),
-        [attributes, identityCard, academicYear, trackedEntity, profileDetailsState?.displayName],
+            resolveIdentity(program, attributes, {
+                enabled: isFinalResultEnabled(dataStoreData, program),
+                dataElement: dataStoreData?.['final-result']?.status,
+                status: getFinalResultStatusValue(academicYear!, dataStoreData, profileDetailsState?.enrollments, schoolCalendarData),
+            }, trackedEntity),
+        [program, attributes, dataStoreData, academicYear, trackedEntity, profileDetailsState?.enrollments, schoolCalendarData],
     );
+
+    const studentName = fields.title;
 
     const getProfile = async () => {
         setEvents({});
@@ -234,7 +229,6 @@ export function useGetProfile() {
         studentName,
         loading: loading || orgUnitLoading,
         trackedEntity,
-        identityCard,
         attributes,
         fields,
         events,

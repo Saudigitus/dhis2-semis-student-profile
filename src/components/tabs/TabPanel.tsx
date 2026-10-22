@@ -1,7 +1,7 @@
 import { Paper } from '@mui/material';
 import styles from './tabs.module.css';
 import { Tab, TabBar } from '@dhis2/ui';
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { D2I18n, VariablesTypes } from "dhis2-semis-types";
 import { useHeader, useUrlParams } from "dhis2-semis-functions";
 import { EventTable, EventCard } from "../event/index"
@@ -11,6 +11,7 @@ import ListComponent from '../list/List';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import DetailCard from '../card/detail/DetailCard';
 import { useHeaders } from '../../hooks/useHeaders/useHeaders';
+import { buildProfileTabs } from '../../utils/profile/buildProfileLayout';
 
 interface TabPanelProps {
     i18n: D2I18n;
@@ -27,9 +28,12 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
     const { columns } = useHeader({ programConfigData: program!, dataStoreData: dataStoreData as any })
     const { headers: eventHeaders } = useHeaders({ programConfigData: program!, dataStoreData: dataStoreData as any })
 
+    // Tabs and cards come from the metadata and the SEMIS modules (SEMIS-248), not from a profile configuration.
+    const tabs = useMemo(() => buildProfileTabs(dataStoreData, program, i18n), [dataStoreData, program])
+
     useEffect(() => {
-        add('tab', [...(dataStoreData?.profile?.tabs || [])].sort((a, b) => a?.order - b?.order)?.[0]?.id)
-    }, [])
+        if (tabs.length && !tabs.some(tab => tab.id === selectedTab)) add('tab', tabs[0].id)
+    }, [tabs, selectedTab])
 
     const componentsMapping: any = {
         "TEI_FORM": ListComponent,
@@ -37,9 +41,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
         "EVENT_CARDS": EventCard,
     }
 
-    const tabsElements = dataStoreData?.profile?.tabs
-        ? [...dataStoreData.profile.tabs]
-            .sort((a, b) => a?.order - b?.order)
+    const tabsElements = tabs
             .map((tab) => ({
                 value: tab?.id,
                 name: tab?.displayName,
@@ -48,7 +50,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                     className={tab?.components?.length > 1 ? styles.panelgrid : ''}
                 >
                     {[...tab.components]
-                        .map(component => {
+                        .map((component, index) => {
                             const Component = componentsMapping[component?.type]
 
                             if (!Component) {
@@ -59,7 +61,7 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                 <DetailCard
                                     badge=''
                                     i18n={i18n}
-                                    key={`${tab.id}-${component?.order}`}
+                                    key={`${tab.id}-${index}`}
                                     title={component?.displayName ?? tab?.displayName}
                                 // action={component?.editable ? { label: 'Edit', icon: <EditNoteIcon /> } : undefined}
                                 >
@@ -67,26 +69,29 @@ function TabPanel(props: TabPanelProps): React.ReactElement {
                                         i18n={i18n}
                                         loading={loading}
                                         programConfig={program}
-                                        pageSize={component?.details?.pageSize}
                                         title={component?.displayName ?? tab?.displayName}
                                         data={component?.type === "TEI_FORM" ?
+                                            // Every attribute of the program (the photo is in the header), or those of the section.
                                             columns
-                                                ?.filter(col => col?.visible && col?.type === VariablesTypes.Attribute)
+                                                ?.filter(col => col?.type === VariablesTypes.Attribute && String(col?.valueType) !== 'IMAGE')
+                                                ?.filter(col => !component?.attributes || component.attributes.includes(col?.id))
                                                 ?.map((col) => ({
                                                     ...col,
                                                     attribute: col?.id,
                                                     value: attributes?.find((attr: any) => attr?.attribute === col?.id)?.value || ""
                                                 }))
                                             :
-                                            events?.[component?.details!?.programStage] || []
+                                            events?.[component?.programStage!] || []
                                         }
-                                        columns={eventHeaders?.[component?.details!?.programStage]?.filter(col => col.visible) || [] || []}
+                                        // Data elements "display in reports"; none means the record shows only its date and school.
+                                        columns={eventHeaders?.[component?.programStage!]
+                                            ?.filter(col => col.visible) || []}
                                     />
                                 </DetailCard>
                             )
                         })}
                 </div>
-            })) : []
+            }))
 
     return (
         <Paper >
