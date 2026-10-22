@@ -16,7 +16,7 @@ const RecordsSummary = ({ events, i18n }: { events: FormattedEvents; i18n: D2I18
         const attendance = data?.attendance;
 
         if (attendance?.programStage && attendance?.enabled !== false) {
-            const absentCode = attendance?.statusOptions?.find((option: any) => option?.key === 'absent')?.code;
+            const absentCode = attendance?.statusOptions?.find((option: any) => option?.configKey === 'absentCode')?.code;
             const absences = (events?.[attendance.programStage] ?? [])
                 .filter((event: any) => event?.dataValues?.some((value: any) => value.dataElement === attendance.status && value.value === absentCode))
                 .length;
