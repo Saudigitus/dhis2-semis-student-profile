@@ -2,6 +2,7 @@
   "name": "dhis2-semis-attendance",
   "version": "1.0.0-alpha.43",
   "description": "",
+  "author": "DHIS2 for Education Team",
   "license": "BSD-3-Clause",
   "private": false,
   "main": "dist/index.js",

@@ -29,22 +29,18 @@ export default function StudentProfile({ i18n, baseUrl }: { i18n: D2I18n, baseUr
     }, []);
 
     const handlePrintProfile = useCallback(() => {
-        console.log('[StudentProfile] Print profile requested');
         if (typeof window !== 'undefined') {
             window.print();
         }
     }, []);
 
     const handleExportRecord = useCallback(() => {
-        console.log('[StudentProfile] Export record requested');
     }, []);
 
     const handleMarkAsDropout = useCallback(() => {
-        console.log('[StudentProfile] Mark as Dropout requested');
     }, []);
 
     const handleDeleteRecord = useCallback(() => {
-        console.log('[StudentProfile] Delete record requested');
     }, []);
 
     return (
